@@ -53,7 +53,7 @@ export const RootLayout = () => {
 
 			{pathname === '/' && <Banner />}
 
-			<main className='container my-8 flex-1'>
+			<main className='flex-1 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto my-8'>
 				<Outlet />
 			</main>
 			<Footer />

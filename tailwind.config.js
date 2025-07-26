@@ -4,9 +4,9 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  theme: {
-    extend: {
-      colors: {
+	theme: {
+		extend: {
+			colors: {
         primary: {
           DEFAULT: '#002357',
           light: '#003366',
@@ -16,7 +16,7 @@ export default {
           DEFAULT: '#f76a0b',
           light: '#ff8c1a',
           dark: '#e55a00',
-        },
+			},
         custom: {
           white: '#ffffff',
           lightGray: '#f8f9fa',
@@ -41,7 +41,7 @@ export default {
           '100%': { opacity: '1' },
         },
       },
-    },
-  },
-  plugins: [],
+		},
+	},
+	plugins: [],
 }

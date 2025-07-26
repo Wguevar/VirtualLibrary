@@ -10,62 +10,104 @@ export const fetchBooks = async () => {
       throw new Error('Supabase no está configurado correctamente');
     }
 
-    // Traer libros y, si es tesis, buscar su PDF en libros_virtuales
-    const { data, error } = await supabase
+    // Primero, obtener todos los libros
+    const { data: libros, error: librosError } = await supabase
       .from('Libros')
-      .select('id_libro, titulo, fecha_publicacion, sinopsis, url_portada, tipo, especialidad, libros_autores(autor:autor_id(nombre)), libros_virtuales:libros_virtuales(direccion_del_libro), libros_fisicos(cantidad)');
-    
-    if (error) {
-      console.error('Error al obtener libros:', error);
+      .select(`
+        id_libro, 
+        titulo, 
+        fecha_publicacion, 
+        sinopsis, 
+        url_portada, 
+        tipo, 
+        especialidad, 
+        libros_autores(autor:autor_id(nombre)), 
+        libros_fisicos(cantidad)
+      `);
+
+    if (librosError) {
+      console.error('Error al obtener libros:', librosError);
       throw new Error('Error al cargar los libros desde la base de datos');
     }
 
-    console.log('[IA] Datos crudos de libros desde la BDD:', data);
+    // Luego, obtener todos los PDFs
+    const { data: pdfs, error: pdfsError } = await supabase
+      .from('libros_virtuales')
+      .select('libro_id, direccion_del_libro');
 
-    return (data || []).map((book: any) => {
-      // Si es tesis, buscar el PDF en libros_virtuales
-      let fileUrl = '';
-      if (book.tipo === 'Tesis' && book.libros_virtuales && book.libros_virtuales.length > 0) {
-        const rawUrl = book.libros_virtuales[0].direccion_del_libro;
-        // Si la URL ya es pública, usarla tal cual. Si es solo la ruta, construir la URL pública.
-        if (rawUrl && rawUrl.startsWith('http')) {
-          fileUrl = rawUrl;
-        } else if (rawUrl) {
-          // Construir la URL pública
-          fileUrl = `https://ueufprdedokleqlyooyq.supabase.co/storage/v1/object/public/${rawUrl}`;
-        }
+    if (pdfsError) {
+      console.error('Error al obtener PDFs:', pdfsError);
+      // No lanzar error, continuar sin PDFs
+    }
+
+    // Crear un mapa de PDFs por libro_id
+    const pdfsMap = new Map();
+    if (pdfs) {
+      pdfs.forEach(pdf => {
+        pdfsMap.set(pdf.libro_id, pdf.direccion_del_libro);
+      });
+    }
+    
+    // Debug: Contar libros con PDFs
+    let librosConPDF = 0;
+    let librosSinPDF = 0;
+
+    return (libros || []).map((book: any) => {
+    // Buscar el PDF usando el mapa
+    let fileUrl = '';
+    
+    const rawUrl = pdfsMap.get(book.id_libro);
+    if (rawUrl) {
+      // Si la URL ya es pública, usarla tal cual. Si es solo la ruta, construir la URL pública.
+      if (rawUrl.startsWith('http')) {
+        fileUrl = rawUrl;
+      } else {
+        // Construir la URL pública
+        fileUrl = `https://ueufprdedokleqlyooyq.supabase.co/storage/v1/object/public/${rawUrl}`;
       }
-      // Obtener cantidad disponible de libros físicos (si aplica)
-      let cantidadDisponible = undefined;
-      
-      if (book.tipo === 'Físico' && book.libros_fisicos && book.libros_fisicos.length > 0) {
-        cantidadDisponible = book.libros_fisicos[0].cantidad;
-      } else if (book.tipo === 'Fisico' && book.libros_fisicos && book.libros_fisicos.length > 0) {
-        cantidadDisponible = book.libros_fisicos[0].cantidad;
-      }
-      return {
-        id: book.id_libro,
-        title: book.titulo,
-        authors: book.libros_autores && book.libros_autores.length > 0
-          ? book.libros_autores.map((a: any) => a.autor.nombre).join(', ')
-          : 'Desconocido',
-        author: book.libros_autores && book.libros_autores.length > 0
-          ? book.libros_autores[0].autor.nombre
-          : 'Desconocido',
-        slug: book.titulo.toLowerCase().replace(/\s+/g, '-'),
-        features: [],
-        description: { content: [{ type: 'paragraph', content: [{ type: 'text', text: book.sinopsis || '' }] }] },
-        coverImage: book.url_portada,
-        created_at: book.fecha_publicacion,
-        price: 0,
-        type: book.tipo,
-        speciality: book.especialidad || '',
-        fragment: '',
-        fileUrl,
-        sinopsis: book.sinopsis || '',
-        cantidadDisponible,
-      };
-    });
+    }
+    // Obtener cantidad disponible de libros físicos (si aplica)
+    let cantidadDisponible = undefined;
+    
+    if (book.tipo === 'Físico' && book.libros_fisicos && book.libros_fisicos.length > 0) {
+      cantidadDisponible = book.libros_fisicos[0].cantidad;
+    } else if (book.tipo === 'Fisico' && book.libros_fisicos && book.libros_fisicos.length > 0) {
+      cantidadDisponible = book.libros_fisicos[0].cantidad;
+    }
+    const mappedBook = {
+      id: book.id_libro,
+      title: book.titulo,
+      authors: book.libros_autores && book.libros_autores.length > 0
+        ? book.libros_autores.map((a: any) => a.autor.nombre).join(', ')
+        : 'Desconocido',
+      author: book.libros_autores && book.libros_autores.length > 0
+        ? book.libros_autores[0].autor.nombre
+        : 'Desconocido',
+      slug: book.titulo.toLowerCase().replace(/\s+/g, '-'),
+      features: [],
+      description: { content: [{ type: 'paragraph', content: [{ type: 'text', text: book.sinopsis || '' }] }] },
+      coverImage: book.url_portada,
+      created_at: book.fecha_publicacion,
+      price: 0,
+      type: book.tipo,
+      speciality: book.especialidad || '',
+      fragment: '',
+      fileUrl,
+      sinopsis: book.sinopsis || '',
+      cantidadDisponible,
+    };
+    
+                    // Debug: Contar PDFs
+                if (mappedBook.fileUrl) {
+                  librosConPDF++;
+                } else {
+                  librosSinPDF++;
+                }
+    
+    return mappedBook;
+  });
+  
+
   } catch (error) {
     console.error('Error en fetchBooks:', error);
     throw error;

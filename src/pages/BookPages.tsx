@@ -9,9 +9,11 @@ import { ReservationModal } from '../components/products/ReservationModal';
 import { useAuth } from '../hooks/useAuth';
 import { fetchBooks } from '../services/bookService';
 import { PDFViewer } from '../components/products/PDFViewer';
+
 import { registerBookReservation } from '../services/bookService';
 import { supabase } from '../supabase/client';
 import { ScrollToTop } from '../components/shared/ScrollToTop';
+
 
 export const BookPages = () => {
   const { isAuthenticated, isConfigured, user } = useAuth();
@@ -27,6 +29,7 @@ export const BookPages = () => {
   // Controlar si la selección de especialidad fue hecha por el usuario
   const [userChangedSpeciality, setUserChangedSpeciality] = useState(false);
   const [showPdf, setShowPdf] = useState(false);
+
   const [reservationMessage, setReservationMessage] = useState<string | null>(null);
   const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
   const [selectedBookForReservation, setSelectedBookForReservation] = useState<PreparedBook | null>(null);
@@ -178,9 +181,10 @@ export const BookPages = () => {
 
   // Handler para ver detalles
   const handleViewDetails = (book: PreparedBook) => {
+    console.log('🔍 Abriendo modal para libro:', book.title);
+    console.log('📄 URL del PDF:', book.fileUrl);
     setSelectedBook(book);
     setIsModalOpen(true);
-    setShowPdf(false); // Resetear visor PDF al abrir modal
   };
 
   const handleCloseModal = () => {
@@ -262,6 +266,8 @@ export const BookPages = () => {
         Libros
       </h1>
 
+
+
       {/* Banner informativo para usuarios no autenticados */}
       {!isAuthenticated && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
@@ -328,9 +334,10 @@ export const BookPages = () => {
                       cantidadDisponible={book.cantidadDisponible}
                       hasActiveOrder={userActiveOrders.has(book.id)}
                       onViewDetails={() => {
+                        console.log('🔍 Abriendo modal desde CardBook:', book.title);
+                        console.log('📄 URL del PDF:', book.fileUrl);
                         setSelectedBook(book);
                         setIsModalOpen(true);
-                        setShowPdf(true); // Mostrar PDF directamente
                       }}
                       onReserve={() => handleReserve(book)}
                     />
@@ -369,17 +376,29 @@ export const BookPages = () => {
                 &times;
               </button>
               {/* Título y visor PDF */}
-              <h3 className="text-lg font-bold text-center w-full truncate">{selectedBook.title}</h3>
-              {showPdf && (
-                <div className="w-full text-center text-xs text-gray-500">Página 1</div>
-              )}
-              {selectedBook.fileUrl && showPdf && (
-                <div className="w-full h-[65vh] mb-4 flex items-center justify-center relative">
-                  {/* Botón flotante para detalles */}
-                  <BookDetailsPopover book={selectedBook} />
-                  <PDFViewer fileUrl={selectedBook.fileUrl} />
-                </div>
-              )}
+              <h3 className="text-lg font-bold text-center w-full truncate mb-4">{selectedBook.title}</h3>
+              
+              {/* Contenido del modal */}
+              <div className="w-full h-[65vh] mb-4 flex items-center justify-center relative">
+                {/* Botón flotante para detalles */}
+                <BookDetailsPopover book={selectedBook} />
+                
+                {/* Mostrar PDF si existe, sino mostrar mensaje */}
+                {selectedBook.fileUrl ? (
+                  <div className="w-full h-[65vh] mb-4 flex items-center justify-center relative">
+                    {/* Botón flotante para detalles */}
+                    <BookDetailsPopover book={selectedBook} />
+                    <PDFViewer fileUrl={selectedBook.fileUrl} />
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <div className="text-red-500 text-6xl mb-4">📄</div>
+                    <p className="text-red-500 text-lg mb-2">Este libro no tiene PDF disponible</p>
+                    <p className="text-gray-600 text-sm">El PDF no está asociado a este libro en la base de datos</p>
+                    <p className="text-gray-500 text-xs mt-2">Debug: fileUrl = {selectedBook.fileUrl || 'undefined'}</p>
+                  </div>
+                )}
+              </div>
             </motion.div>
           </motion.div>
         )}

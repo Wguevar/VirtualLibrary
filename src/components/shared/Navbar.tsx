@@ -333,9 +333,9 @@ export const Navbar = () => {
 									<div className="space-y-1 mb-3">
 										<p className='font-semibold text-gray-700 text-sm'>Nombre: <span className='font-normal text-gray-900'>{user.nombre}</span></p>
 										<p className='font-semibold text-gray-700 text-sm'>Email: <span className='font-normal break-words text-gray-900'>{user.correo}</span></p>
-										{user.escuela && (
+									{user.escuela && (
 											<p className='font-semibold text-gray-700 text-sm'>Escuela: <span className='font-normal text-gray-900'>{user.escuela}</span></p>
-										)}
+									)}
 										{user.rol && (
 											<p className='font-semibold text-gray-700 text-sm'>Rol: <span className='font-normal text-gray-900 capitalize'>{user.rol}</span></p>
 										)}
@@ -390,12 +390,12 @@ export const Navbar = () => {
 					</>
 				) : (
 					<div className="flex items-center gap-3">
-						<button
-							onClick={handleLogin}
+					<button
+						onClick={handleLogin}
 							className='bg-secondary text-white py-2 px-4 rounded hover:bg-secondary-dark transition font-medium'
-						>
-							Iniciar sesión
-						</button>
+					>
+						Iniciar sesión
+					</button>
 						{!isConfigured && (
 							<span className="text-yellow-300 text-xs bg-yellow-800 px-2 py-1 rounded">
 								Configuración pendiente
