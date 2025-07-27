@@ -12,7 +12,7 @@ interface PDFViewerProps {
   showDownloadButtons?: boolean;
 }
 
-export const PDFViewer = ({ fileUrl, onlyFirstPage = false, isAuthenticated = false, showDownloadButtons = true }: PDFViewerProps) => {
+export const PDFViewer = ({ fileUrl, onlyFirstPage = false, isAuthenticated = false, showDownloadButtons = false }: PDFViewerProps) => {
   const [numPages, setNumPages] = useState<number>(1);
   const [pageNumber, setPageNumber] = useState<number>(1);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -115,22 +115,8 @@ export const PDFViewer = ({ fileUrl, onlyFirstPage = false, isAuthenticated = fa
                 <div className="flex flex-col items-center justify-center text-center">
                   <div className="text-red-500 text-6xl mb-4">📄</div>
                   <p className="text-red-500 text-lg mb-2">Error al cargar el PDF</p>
-                  <p className="text-gray-600 text-sm mb-4">URL: {fileUrl}</p>
-                  <div className="flex gap-2">
-                    <button 
-                      onClick={() => window.open(fileUrl, '_blank')}
-                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-                    >
-                      Abrir en nueva pestaña
-                    </button>
-                    <a 
-                      href={fileUrl}
-                      download
-                      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
-                    >
-                      Descargar PDF
-                    </a>
-                  </div>
+                  <p className="text-gray-600 text-sm mb-4">El PDF no se puede mostrar en el visor</p>
+                  <p className="text-gray-500 text-xs mb-4">Intente usar los botones de abajo para abrir o descargar el PDF</p>
                 </div>
               }
               options={pdfOptions}

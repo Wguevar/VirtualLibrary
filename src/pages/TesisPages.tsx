@@ -242,6 +242,25 @@ export const TesisPages = () => {
                   <PDFViewer fileUrl={selectedBook.fileUrl} isAuthenticated={isAuthenticated} showDownloadButtons={false} />
                 </div>
               )}
+              
+              {/* Botones de acción - solo para usuarios autenticados */}
+              {isAuthenticated && selectedBook.fileUrl && showPdf && (
+                <div className="flex items-center justify-center gap-4 mt-4">
+                  <button
+                    onClick={() => window.open(selectedBook.fileUrl, '_blank')}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                  >
+                    Abrir en nueva ventana
+                  </button>
+                  <a
+                    href={selectedBook.fileUrl}
+                    download
+                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+                  >
+                    Descargar PDF
+                  </a>
+                </div>
+              )}
             </motion.div>
           </motion.div>
         )}
@@ -285,7 +304,6 @@ function BookDetailsPopover({ book }: { book: PreparedBook }) {
             <div className="font-bold text-base mb-1 truncate">{book.title}</div>
             <div className="mb-1"><span className="font-semibold">Tipo:</span> {book.type}</div>
             <div className="mb-1"><span className="font-semibold">Especialidad:</span> {book.speciality}</div>
-            <div className="mb-1"><span className="font-semibold">Autor:</span> {book.authors || book.author}</div>
             <div className="mb-1"><span className="font-semibold">Sinopsis:</span> <span className="block text-gray-600 max-h-24 overflow-y-auto whitespace-pre-line">{book.description?.content?.[0]?.content?.[0]?.text || 'Sin sinopsis.'}</span></div>
           </motion.div>
         )}

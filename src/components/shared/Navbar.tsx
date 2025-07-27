@@ -223,7 +223,7 @@ export const Navbar = () => {
 					{showSearch && (
 						<input
 							type='text'
-							className='border rounded px-2 py-1 ml-2 text-gray-800'
+							className='border border-gray-300 rounded px-2 py-1 ml-2 text-gray-800 placeholder-gray-500 bg-white focus:ring-2 focus:ring-secondary focus:border-secondary transition-all'
 							placeholder='Buscar libro...'
 							value={searchValue}
 							onChange={e => setSearchValue(e.target.value)}
@@ -272,7 +272,7 @@ export const Navbar = () => {
 						>
 							<input
 								type='text'
-								className='border rounded px-2 py-1 ml-2'
+								className='border border-gray-300 rounded px-2 py-1 ml-2 text-gray-800 placeholder-gray-500 bg-white focus:ring-2 focus:ring-secondary focus:border-secondary transition-all'
 								placeholder='Buscar libro...'
 								value={searchValue}
 								onChange={e => setSearchValue(e.target.value)}
@@ -291,14 +291,17 @@ export const Navbar = () => {
 										animate={{ opacity: 1, y: 0 }}
 										exit={{ opacity: 0, y: -8 }}
 										transition={{ duration: 0.18 }}
-										className='absolute left-0 mt-1 w-full bg-white border border-gray-300 rounded shadow-lg z-50 max-h-60 overflow-y-auto'
+										className='absolute left-0 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-xl z-50 max-h-60 overflow-y-auto'
 									>
 										{loadingSuggestions ? (
-											<li className='p-2 text-gray-500'>Cargando...</li>
+											<li className='p-3 text-gray-500 text-sm flex items-center gap-2'>
+												<div className='animate-spin rounded-full h-4 w-4 border-b-2 border-secondary'></div>
+												Cargando...
+											</li>
 										) : suggestions.length === 0 ? null : suggestions.map(book => (
 											<li
 												key={book.id}
-												className='p-2 hover:bg-gray-100 cursor-pointer text-sm'
+												className='p-3 hover:bg-gray-50 cursor-pointer text-sm text-gray-800 border-b border-gray-100 last:border-b-0 transition-colors'
 												onClick={() => {
 													const type = (book.type || '').toLowerCase();
 													const isTesis = [
@@ -313,7 +316,10 @@ export const Navbar = () => {
 													setSearchValue('');
 												}}
 											>
-												{book.title}
+												<div className='font-medium text-gray-900'>{book.title}</div>
+												{book.speciality && (
+													<div className='text-xs text-gray-500 mt-1'>{book.speciality}</div>
+												)}
 											</li>
 										))}
 									</motion.ul>

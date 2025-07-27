@@ -1,0 +1,94 @@
+# SOLUCIÓN: PROBLEMA CON FILTRO DE ESPECIALIDAD EN ADMIN
+
+## Problema Identificado
+
+### ❌ **Filtro no funciona para "Ingenieria De Sistemas"**
+- Al seleccionar "Ingenieria De Sistemas" en el filtro del admin, no se muestran libros
+- El problema es una inconsistencia entre los datos en la base de datos y el filtro
+
+## Causa del Problema
+
+### 🔍 **Inconsistencia de Datos**
+- **En la base de datos**: Los libros tienen `especialidad = 'Ingenieria en Sistemas'`
+- **En el filtro**: Se busca `especialidad = 'Ingenieria De Sistemas'`
+- **Resultado**: No hay coincidencias, por lo que no se muestran libros
+
+## Solución Implementada
+
+### 1. ✅ **Debugging Temporal**
+**Archivo**: `src/pages/AdminBooksPage.tsx`
+
+**Cambios realizados**:
+```typescript
+// Debug para ver qué datos se cargan
+console.log('📚 Libros cargados desde BD:', librosConPdf);
+console.log('🔍 Especialidades únicas:', [...new Set(librosConPdf.map(l => l.especialidad))]);
+
+// Debug para el filtro
+console.log('🔍 Filtro de especialidad activo:', activeFilters.especialidad);
+console.log('📚 Libros antes del filtro:', filtered.length);
+filtered = filtered.filter(libro => {
+  console.log(`📖 Libro "${libro.titulo}" - Especialidad: "${libro.especialidad}"`);
+  const matches = libro.especialidad === activeFilters.especialidad;
+  console.log(`✅ ¿Coincide? ${matches}`);
+  return matches;
+});
+console.log('📚 Libros después del filtro:', filtered.length);
+```
+
+### 2. ✅ **Script SQL para Actualizar Base de Datos**
+**Archivo**: `ACTUALIZAR_ESPECIALIDAD_SISTEMAS.sql`
+
+**Contenido**:
+```sql
+-- Actualizar todos los libros con la especialidad antigua
+UPDATE "Libros" 
+SET especialidad = 'Ingenieria De Sistemas' 
+WHERE especialidad = 'Ingenieria en Sistemas';
+```
+
+## Pasos para Solucionar
+
+### 🔧 **Paso 1: Verificar el Problema**
+1. Abrir la consola del navegador (F12)
+2. Ir a la página de admin de libros
+3. Seleccionar "Ingenieria De Sistemas" en el filtro
+4. Revisar los logs en la consola para confirmar el problema
+
+### 🗄️ **Paso 2: Actualizar Base de Datos**
+1. Ir a Supabase Dashboard
+2. Abrir SQL Editor
+3. Ejecutar el script `ACTUALIZAR_ESPECIALIDAD_SISTEMAS.sql`
+4. Verificar que se actualizaron los datos
+
+### 🧹 **Paso 3: Limpiar Debugging**
+1. Una vez confirmado que funciona, eliminar los console.log
+2. Mantener el código limpio
+
+## Verificación
+
+### ✅ **Después de la actualización:**
+- [ ] Los libros con "Ingenieria en Sistemas" ahora tienen "Ingenieria De Sistemas"
+- [ ] El filtro funciona correctamente
+- [ ] Se muestran los libros al seleccionar "Ingenieria De Sistemas"
+- [ ] No hay inconsistencias en los datos
+
+## Archivos Modificados
+
+### Archivos con debugging temporal:
+- `src/pages/AdminBooksPage.tsx` - Logs de debug para identificar el problema
+
+### Archivos creados:
+- `ACTUALIZAR_ESPECIALIDAD_SISTEMAS.sql` - Script para actualizar la BD
+- `SOLUCION_FILTRO_ADMIN.txt` - Documentación de la solución
+
+## Estado
+
+- 🔍 **Problema identificado**: Inconsistencia entre BD y filtro
+- 🛠️ **Solución implementada**: Script SQL + debugging temporal
+- ⏳ **Pendiente**: Ejecutar script en Supabase y verificar funcionamiento
+- 🧹 **Pendiente**: Limpiar logs de debug una vez confirmado
+
+---
+Fecha: $(date)
+Estado: 🔍 EN PROGRESO 

@@ -131,6 +131,8 @@ const AdminBooksPage = () => {
         url_pdf: libro.libros_virtuales && libro.libros_virtuales.length > 0 ? libro.libros_virtuales[0].direccion_del_libro : ''
       }));
       
+      console.log('📚 Libros cargados desde BD:', librosConPdf);
+      console.log('🔍 Especialidades únicas:', [...new Set(librosConPdf.map(l => l.especialidad))]);
       setLibros(librosConPdf);
     }
   };
@@ -163,7 +165,15 @@ const AdminBooksPage = () => {
     }
 
     if (activeFilters.especialidad && activeFilters.especialidad !== '') {
-      filtered = filtered.filter(libro => libro.especialidad === activeFilters.especialidad);
+      console.log('🔍 Filtro de especialidad activo:', activeFilters.especialidad);
+      console.log('📚 Libros antes del filtro:', filtered.length);
+      filtered = filtered.filter(libro => {
+        console.log(`📖 Libro "${libro.titulo}" - Especialidad: "${libro.especialidad}"`);
+        const matches = libro.especialidad === activeFilters.especialidad;
+        console.log(`✅ ¿Coincide? ${matches}`);
+        return matches;
+      });
+      console.log('📚 Libros después del filtro:', filtered.length);
     }
 
     setFilteredLibros(filtered);
