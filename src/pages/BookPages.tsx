@@ -6,6 +6,7 @@ import { useLocation } from 'react-router-dom';
 import { CardBook } from '../components/products/CardBook';
 import { ContainerFilter } from '../components/products/ContainerFilter';
 import { ReservationModal } from '../components/products/ReservationModal';
+import { Pagination } from '../components/shared/Pagination';
 import { useAuth } from '../hooks/useAuth';
 import { fetchBooks } from '../services/bookService';
 import { PDFViewer } from '../components/products/PDFViewer';
@@ -34,6 +35,10 @@ export const BookPages = () => {
   const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
   const [selectedBookForReservation, setSelectedBookForReservation] = useState<PreparedBook | null>(null);
   const [userActiveOrders, setUserActiveOrders] = useState<Set<number>>(new Set());
+
+  // Estados para paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const loadBooks = async () => {
@@ -112,7 +117,7 @@ export const BookPages = () => {
 
   // Lista fija de especialidades para los filtros
   const specialitiesForFilterBase = [
-    'Ingeniería De Sistemas',
+    'Ingeniería en Sistemas',
     'Ingeniería Civil',
     'Ingeniería en Mantenimiento Mecánico',
     'Ingeniería Electrónica',
@@ -171,6 +176,26 @@ export const BookPages = () => {
       )
     );
   }
+
+  // Lógica de paginación
+  const totalItems = filteredBooks.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentBooks = filteredBooks.slice(startIndex, endIndex);
+
+  // Resetear a la primera página cuando cambian los filtros
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedSpecialities, searchQuery]);
+
+
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top cuando cambia de página
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   if (loading) {
     return <p className="text-center text-gray-500 text-lg my-8">Cargando libros...</p>;
@@ -312,42 +337,57 @@ export const BookPages = () => {
               <p className="text-center text-gray-500 text-lg my-8">No hay libros disponibles.</p>
             </div>
           ) : (
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 gap-y-8 sm:gap-y-10 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'>
-              <AnimatePresence>
-                {filteredBooks.map(book => (
-                  <motion.div
-                    key={book.id}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.25 }}
-                  >
-                    <CardBook
-                      title={book.title}
-                      authors={book.authors}
-                      price={book.price}
-                      img={book.coverImage}
-                      slug={book.slug}
-                      speciality={book.speciality}
-                      type={book.type}
-                      fragment={book.fragment}
-                      fileUrl={book.fileUrl}
-                      cantidadDisponible={book.cantidadDisponible}
+            <>
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 gap-y-8 sm:gap-y-10 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'>
+                <AnimatePresence>
+                  {currentBooks.map(book => (
+                    <motion.div
+                      key={book.id}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      <CardBook
+                        title={book.title}
+                        authors={book.authors}
+                        price={book.price}
+                        img={book.coverImage}
+                        slug={book.slug}
+                        speciality={book.speciality}
+                        type={book.type}
+                        fragment={book.fragment}
+                        fileUrl={book.fileUrl}
+                                              cantidadDisponible={book.cantidadDisponible}
                       hasActiveOrder={userActiveOrders.has(book.id)}
+                      isAuthenticated={isAuthenticated}
                       onViewDetails={() => {
+                        if (!isAuthenticated) {
+                          return; // No abrir modal si no está autenticado
+                        }
                         console.log('🔍 Abriendo modal desde CardBook:', book.title);
                         console.log('📄 URL del PDF:', book.fileUrl);
                         setSelectedBook(book);
                         setIsModalOpen(true);
                       }}
                       onReserve={() => handleReserve(book)}
-                    />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
+                      />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+              
+              {/* Paginación */}
+              <div className="mt-8">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                  totalItems={totalItems}
+                  itemsPerPage={itemsPerPage}
+                />
+              </div>
+            </>
           )}
-
-          {/* TODO: Paginación */}
         </div>
       </div>
 
@@ -362,7 +402,7 @@ export const BookPages = () => {
             onClick={handleCloseModal} // Cerrar al hacer click fuera
           >
             <motion.div
-              className="bg-white rounded-lg shadow-lg max-w-4xl w-[95%] max-h-[90vh] p-4 sm:p-6 lg:p-8 relative flex flex-col items-center overflow-hidden"
+              className="bg-white rounded-lg shadow-lg max-w-4xl w-[95%] max-h-[90vh] p-4 sm:p-6 lg:p-8 relative flex flex-col items-center"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -385,7 +425,7 @@ export const BookPages = () => {
                 
                 {/* Mostrar PDF si existe, sino mostrar mensaje */}
                 {selectedBook.fileUrl ? (
-                  <PDFViewer fileUrl={selectedBook.fileUrl} />
+                  <PDFViewer fileUrl={selectedBook.fileUrl} isAuthenticated={isAuthenticated} />
                 ) : (
                   <div className="text-center">
                     <div className="text-red-500 text-6xl mb-4">📄</div>

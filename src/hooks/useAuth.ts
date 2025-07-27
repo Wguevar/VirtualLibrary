@@ -150,6 +150,11 @@ export const useAuth = () => {
     }
     setUser(null);
     setError(null);
+    
+    // Recargar la página después de cerrar sesión
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
   };
 
   // Limpiar error

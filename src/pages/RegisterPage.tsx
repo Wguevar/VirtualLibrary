@@ -4,12 +4,12 @@ import { useAuth } from '../hooks/useAuth';
 import { validation } from '../utils/validation';
 
 const specialities = [
-  'Ingeniería Electrónica',
+  'Ingeniería en Sistemas',
   'Ingeniería Civil',
   'Ingeniería Industrial',
   'Ingeniería Eléctrica',
   'Ingeniería En Mantenimiento Mecánico',
-  'Ingeniería De Sistemas',
+  'Ingeniería Electrónica',
 ];
 
 export const RegisterPage = () => {
@@ -80,10 +80,12 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
+    <div className="relative min-h-screen flex items-center justify-center">
+      {/* Fondo de imagen */}
+      <div className="fixed inset-0 bg-cover bg-center z-[-1]" style={{ backgroundImage: 'url(/img/Estantes_biblioteca.jpg)' }} />
       <form
         onSubmit={handleRegister}
-        className="bg-white p-8 rounded shadow-lg shadow-gray-400 w-full max-w-md flex flex-col gap-4"
+        className="relative z-10 bg-white p-8 rounded shadow-lg shadow-gray-400 w-full max-w-md flex flex-col gap-4"
       >
         <h2 className="text-2xl font-bold text-center mb-4">Registro</h2>
         

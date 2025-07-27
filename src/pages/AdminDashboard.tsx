@@ -85,8 +85,8 @@ export default function AdminLayout() {
             >
               <span className="text-xl flex-shrink-0">{link.icon}</span>
               {!collapsed && <span className="truncate">{link.label}</span>}
-              {/* Notificaciones para la pestaña de reportes */}
-              {link.to === '/admin/reportes' && link.notis && !collapsed && (
+              {/* Notificaciones para la pestaña de reportes - COMENTADO */}
+              {/* {link.to === '/admin/reportes' && link.notis && !collapsed && (
                 <span className="flex gap-1 ml-auto">
                   {link.notis.morosos > 0 && (
                     <span 
@@ -105,7 +105,7 @@ export default function AdminLayout() {
                     </span>
                   )}
                 </span>
-              )}
+              )} */}
             </NavLink>
           ))}
         </nav>

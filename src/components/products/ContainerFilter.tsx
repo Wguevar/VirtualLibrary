@@ -4,9 +4,10 @@ interface Props {
 	selectedSpecialities: string[];
 	onChange: (specialities: string[]) => void;
 	specialities: string[]; // Lista de especialidades únicas
+	title?: string; // Título personalizable del filtro
 }
 
-export const ContainerFilter = ({ selectedSpecialities, onChange, specialities }: Props) => {
+export const ContainerFilter = ({ selectedSpecialities, onChange, specialities, title = 'Tipos' }: Props) => {
 	const handleCheckbox = (brand: string) => {
 		if (selectedSpecialities.includes(brand)) {
 			onChange(selectedSpecialities.filter(s => s !== brand));
@@ -23,7 +24,7 @@ export const ContainerFilter = ({ selectedSpecialities, onChange, specialities }
 			<Separator />
 
 			<div className='flex flex-col gap-2 sm:gap-3'>
-				<h3 className='text-base sm:text-lg font-medium text-black'>Carreras</h3>
+				<h3 className='text-base sm:text-lg font-medium text-black'>{title}</h3>
 
 				<div className='flex flex-col gap-1 sm:gap-2'>
 					{specialities.map(brand => (

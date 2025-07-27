@@ -15,11 +15,12 @@ export const Footer = () => {
 
 			<div className='flex flex-col gap-3 sm:gap-4 text-center sm:text-left'>
 				<p className='font-semibold uppercase tracking-tighter text-sm sm:text-base'>
-					Políticas
+					Secciones
 				</p>
 
 				<nav className='flex flex-col gap-2 text-xs font-medium'>
 					<Link to='/Libros'>Libros</Link>
+					<Link to='/Tesis'>Proyectos de Investigación</Link>
 				</nav>
 			</div>
 
@@ -29,7 +30,7 @@ export const Footer = () => {
 				</p>
 
 				<p className='text-xs leading-6 max-w-xs mx-auto sm:mx-0'>
-					No te pierdas las novedades que nuestra BibliotecaVirtual tiene para
+					No te pierdas las novedades que nuestra Institución tiene para
 					ti.
 				</p>
 

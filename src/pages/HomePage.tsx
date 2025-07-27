@@ -4,11 +4,13 @@ import { FeatureGrid } from '../components/home/FeatureGrid';
 import { BookGrid } from '../components/home/BookGrid';
 import { fetchBooks } from '../services/bookService';
 import { PreparedBook } from '../interfaces';
+import { useAuth } from '../hooks/useAuth';
 
 export const HomePage = () => {
 	const [books, setBooks] = useState<PreparedBook[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const { isAuthenticated } = useAuth();
 
 	useEffect(() => {
 		const loadBooks = async () => {
@@ -32,6 +34,8 @@ export const HomePage = () => {
 		};
 		loadBooks();
 	}, []);
+
+
 
 	return (
 		<div>

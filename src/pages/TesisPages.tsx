@@ -4,6 +4,7 @@ import { CardBook } from '../components/products/CardBook';
 import { AnimatePresence, motion } from 'framer-motion';
 import { fetchBooks } from '../services/bookService';
 import { ContainerFilter } from '../components/products/ContainerFilter';
+import { Pagination } from '../components/shared/Pagination';
 import { useAuth } from '../hooks/useAuth';
 import { PDFViewer } from '../components/products/PDFViewer';
 import { PreparedBook } from '../interfaces';
@@ -18,14 +19,29 @@ export const TesisPages = () => {
   const [selectedBook, setSelectedBook] = useState<TesisBook | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showPdf, setShowPdf] = useState(false);
+  const [selectedEspecialidades, setSelectedEspecialidades] = useState<string[]>([]);
+
+  // Estados para paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const { isAuthenticated } = useAuth();
 
   // Lista fija de especialidades para los filtros
   const specialitiesForFilter = [
     'Tesis',
-    'Pasantías',
     'Proyecto de Investigacion',
+  ];
+
+  // Lista de especialidades para el filtro de carreras
+  const especialidadesForFilter = [
+    'Ingeniería en Sistemas',
+    'Ingeniería Civil',
+    'Ingeniería en Mantenimiento Mecánico',
+    'Ingeniería Electrónica',
+    'Ingeniería Industrial',
+    'Ingeniería Eléctrica',
+    'Arquitectura',
   ];
 
   // Función para normalizar textos (ignorar mayúsculas y tildes)
@@ -40,13 +56,11 @@ export const TesisPages = () => {
   // Log para ver los tipos normalizados
   console.log('Tipos normalizados:', books.map(b => b.type && normalize(b.type)));
 
-  // Filtrar solo libros de tipo Tesis, Proyecto de Investigacion o Pasantía(s)
+  // También elimina la opción 'Pasantía' y 'Pasantias' de los filtros de libros
   let filteredBooks = books.filter(
     book =>
       book.type === 'Tesis' ||
-      book.type === 'Proyecto de Investigacion' ||
-      book.type === 'Pasantía' ||
-      book.type === 'Pasantias'
+      book.type === 'Proyecto de Investigacion'
   );
 
   // Filtrar por tipo seleccionado (igual que BookPages pero usando type)
@@ -65,6 +79,35 @@ export const TesisPages = () => {
     });
     console.log('Libros mostrados tras filtrar:', filteredBooks.map(b => ({ title: b.title, type: b.type })));
   }
+
+  // Filtrar por especialidad seleccionada
+  if (selectedEspecialidades.length > 0) {
+    filteredBooks = filteredBooks.filter(book => {
+      return selectedEspecialidades.some(sel =>
+        book.speciality && normalize(sel) === normalize(book.speciality)
+      );
+    });
+  }
+
+  // Lógica de paginación
+  const totalItems = filteredBooks.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentBooks = filteredBooks.slice(startIndex, endIndex);
+
+  // Resetear a la primera página cuando cambian los filtros
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedSpecialities, selectedEspecialidades]);
+
+
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top cuando cambia de página
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   useEffect(() => {
     const loadBooks = async () => {
@@ -87,14 +130,6 @@ export const TesisPages = () => {
   if (error) {
     return <p className="text-center text-red-500 text-lg my-8">{error}</p>;
   }
-  if (filteredBooks.length === 0) {
-    return (
-      <div className="my-32">
-        <h1 className='text-5xl font-semibold text-center mb-12'>Tesis</h1>
-        <p className="text-center text-gray-500 text-lg my-8">No hay libros disponibles.</p>
-      </div>
-    );
-  }
 
   return (
     <div className="my-32">
@@ -106,38 +141,73 @@ export const TesisPages = () => {
       </h2>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {/* Caja de filtros */}
-        <ContainerFilter
-          selectedSpecialities={selectedSpecialities}
-          onChange={setSelectedSpecialities}
-          specialities={specialitiesForFilter}
-        />
-        <div className="col-span-2 lg:col-span-3 xl:col-span-4 flex flex-col gap-12">
+        <div className="col-span-2 lg:col-span-1 flex flex-col gap-3">
+          <ContainerFilter
+            selectedSpecialities={selectedSpecialities}
+            onChange={setSelectedSpecialities}
+            specialities={specialitiesForFilter}
+            title="Tipos"
+          />
+          <ContainerFilter
+            selectedSpecialities={selectedEspecialidades}
+            onChange={setSelectedEspecialidades}
+            specialities={especialidadesForFilter}
+            title="Especialidades"
+          />
+          <button
+            onClick={() => {
+              setSelectedSpecialities([]);
+              setSelectedEspecialidades([]);
+            }}
+            className="mt-4 w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded-lg transition-colors font-medium"
+          >
+            Limpiar
+          </button>
+        </div>
+        <div className="col-span-2 lg:col-span-2 xl:col-span-4 flex flex-col gap-12">
           {filteredBooks.length === 0 ? (
             <div className="my-32">
-              <p className="text-center text-gray-500 text-lg my-8">No hay tesis disponibles.</p>
+              <p className="text-center text-gray-500 text-lg my-8">No hay proyectos disponibles.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-3 gap-y-10 xl:grid-cols-4">
-              {filteredBooks.map(book => (
-                <CardBook
-                  key={book.id}
-                  title={book.title}
-                  authors={book.authors}
-                  price={book.price}
-                  img={book.coverImage}
-                  slug={book.slug}
-                  speciality={book.speciality}
-                  type={book.type}
-                  fragment={book.fragment}
-                  fileUrl={book.fileUrl}
-                  onViewDetails={() => {
-                    setSelectedBook(book);
-                    setIsModalOpen(true);
-                    setShowPdf(true); // Mostrar PDF directamente
-                  }}
+            <>
+              <div className="grid grid-cols-2 gap-3 gap-y-10 xl:grid-cols-4">
+                {currentBooks.map(book => (
+                  <CardBook
+                    key={book.id}
+                    title={book.title}
+                    authors={book.authors}
+                    price={book.price}
+                    img={book.coverImage}
+                    slug={book.slug}
+                    speciality={book.speciality}
+                    type={book.type}
+                    fragment={book.fragment}
+                    fileUrl={book.fileUrl}
+                    isAuthenticated={isAuthenticated}
+                    onViewDetails={() => {
+                      if (!isAuthenticated) {
+                        return; // No abrir modal si no está autenticado
+                      }
+                      setSelectedBook(book);
+                      setIsModalOpen(true);
+                      setShowPdf(true); // Mostrar PDF directamente
+                    }}
+                  />
+                ))}
+              </div>
+              
+              {/* Paginación */}
+              <div className="mt-8">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                  totalItems={totalItems}
+                  itemsPerPage={itemsPerPage}
                 />
-              ))}
-            </div>
+              </div>
+            </>
           )}
         </div>
       </div>
@@ -179,7 +249,7 @@ export const TesisPages = () => {
               {selectedBook.fileUrl && showPdf && (
                 <div className="w-full h-[65vh] mb-4 flex items-center justify-center relative">
                   <BookDetailsPopover book={selectedBook} />
-                  <PDFViewer fileUrl={selectedBook.fileUrl} onlyFirstPage />
+                  <PDFViewer fileUrl={selectedBook.fileUrl} isAuthenticated={isAuthenticated} showDownloadButtons={false} />
                 </div>
               )}
             </motion.div>

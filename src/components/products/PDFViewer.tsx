@@ -8,9 +8,11 @@ pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
 interface PDFViewerProps {
   fileUrl: string;
   onlyFirstPage?: boolean;
+  isAuthenticated?: boolean;
+  showDownloadButtons?: boolean;
 }
 
-export const PDFViewer = ({ fileUrl, onlyFirstPage = false }: PDFViewerProps) => {
+export const PDFViewer = ({ fileUrl, onlyFirstPage = false, isAuthenticated = false, showDownloadButtons = true }: PDFViewerProps) => {
   const [numPages, setNumPages] = useState<number>(1);
   const [pageNumber, setPageNumber] = useState<number>(1);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -54,7 +56,7 @@ export const PDFViewer = ({ fileUrl, onlyFirstPage = false }: PDFViewerProps) =>
       {/* Controles de navegación y acciones */}
       <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-2 w-full">
         {/* Controles de navegación */}
-        {!onlyFirstPage && numPages > 1 && (
+        {numPages > 1 && (
           <div className="flex items-center justify-center gap-2 sm:gap-4">
             <button
               onClick={goToPrevPage}
@@ -76,24 +78,26 @@ export const PDFViewer = ({ fileUrl, onlyFirstPage = false }: PDFViewerProps) =>
           </div>
         )}
         
-        {/* Botones de acción */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          <button
-            onClick={() => window.open(fileUrl, '_blank')}
-            className="px-2 sm:px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-xs sm:text-sm"
-          >
-            <span className="hidden sm:inline">Abrir en nueva ventana</span>
-            <span className="sm:hidden">Abrir</span>
-          </button>
-          <a
-            href={fileUrl}
-            download
-            className="px-2 sm:px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition text-xs sm:text-sm"
-          >
-            <span className="hidden sm:inline">Descargar PDF</span>
-            <span className="sm:hidden">Descargar</span>
-          </a>
-        </div>
+        {/* Botones de acción - solo para usuarios autenticados y si showDownloadButtons es true */}
+        {isAuthenticated && showDownloadButtons && (
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              onClick={() => window.open(fileUrl, '_blank')}
+              className="px-2 sm:px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-xs sm:text-sm"
+            >
+              <span className="hidden sm:inline">Abrir en nueva ventana</span>
+              <span className="sm:hidden">Abrir</span>
+            </button>
+            <a
+              href={fileUrl}
+              download
+              className="px-2 sm:px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition text-xs sm:text-sm"
+            >
+              <span className="hidden sm:inline">Descargar PDF</span>
+              <span className="sm:hidden">Descargar</span>
+            </a>
+          </div>
+        )}
       </div>
       
       {/* Contenedor del PDF */}

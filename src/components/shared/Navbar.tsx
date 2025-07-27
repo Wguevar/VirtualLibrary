@@ -381,7 +381,7 @@ export const Navbar = () => {
 							</button>
 							{showPrestamos && (
 								<div ref={prestamosMenuRef} className='absolute right-0 mt-2 w-64 bg-white border border-slate-200 rounded shadow-lg p-4 z-50'>
-									<p className='font-semibold mb-2'>Historial de préstamos</p>
+									<p className='font-semibold mb-2 text-black'>Historial de préstamos</p>
 									{prestamos.length === 0 ? (
 										<p className='text-gray-500 text-sm'>No has realizado ningún préstamo.</p>
 									) : (

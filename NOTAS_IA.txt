@@ -936,3 +936,82 @@ Cambios realizados hasta el momento:
 
 **RESULTADO:**
 El menú hamburguesa ahora proporciona una experiencia mucho mejor en dispositivos móviles, con navegación clara y organizada para cada sección del admin, manteniendo toda la funcionalidad accesible desde cualquier dispositivo.
+
+# =============================================
+# CAMBIOS REALIZADOS - FECHA: 07/27/2025
+# =============================================
+
+# 1. CORRECCIÓN DE Z-INDEX EN MODALES
+# - Problema: BookDetailsPopover aparecía detrás del modal del PDF
+# - Solución: Se aumentó z-index del popover de 20 a 60
+# - Archivos: BookPages.tsx, TesisPages.tsx
+# - Resultado: Descripción del libro ahora aparece por encima del modal
+
+# 2. REVERSIÓN DE Z-INDEX
+# - Se revirtió el z-index del popover de vuelta a 20
+# - Motivo: Usuario solicitó revertir los cambios
+
+# 3. CORRECCIÓN DE OVERFLOW EN MODALES
+# - Problema: En BookPages.tsx el modal tenía overflow-hidden que cortaba el popover
+# - Solución: Se removió overflow-hidden del modal
+# - Resultado: Popover de detalles se ve completo en todas las páginas
+
+# 4. UNIFICACIÓN DE ESTRUCTURA DE MODALES
+# - Se modificó BookGrid.tsx (página principal) para tener la misma estructura que otras páginas
+# - Se agregó BookDetailsPopover con la misma funcionalidad
+# - Se removió overflow-hidden para consistencia
+# - Resultado: Misma experiencia de usuario en todas las páginas
+
+# 5. ACTUALIZACIÓN DEL FOOTER
+# - Se cambió "Políticas" por "Secciones"
+# - Se agregó enlace "Proyectos de Investigación" debajo de "Libros"
+# - Se cambió texto de "BibliotecaVirtual" por "Institución" con acento
+# - Archivo: Footer.tsx
+
+# 6. IMPLEMENTACIÓN DE PAGINACIÓN
+# - Se agregó paginación en BookPages.tsx y TesisPages.tsx
+# - 10 libros por página
+# - Componente Pagination con navegación completa
+# - Reset automático a página 1 cuando cambian filtros
+# - Scroll automático al cambiar de página
+
+# 7. PROTECCIÓN DE ACCESO A PDFS
+# - Problema: Usuarios no registrados podían descargar y visualizar PDFs
+# - Solución: Se agregó prop isAuthenticated a CardBook y PDFViewer
+# - Los botones de visualizar se deshabilitan para usuarios no autenticados
+# - Se agregaron tooltips informativos
+# - Se protegió acceso directo a PDFs en modales
+
+# 8. RECARGA AUTOMÁTICA AL CERRAR SESIÓN
+# - Se modificó función logout en useAuth.ts
+# - Se agregó window.location.reload() con delay de 100ms
+# - Resultado: La página se recarga automáticamente cuando el usuario cierra sesión
+
+# 9. RESTRICCIONES ESPECIALES PARA PROYECTOS DE INVESTIGACIÓN
+# - Se agregó prop showDownloadButtons al PDFViewer
+# - En TesisPages.tsx: showDownloadButtons={false}
+# - Los proyectos de investigación no se pueden descargar ni abrir en nueva ventana
+# - Solo visualización en modal con controles de navegación
+# - Controles de navegación con mismo estilo que otras páginas
+
+# ✅ ARCHIVOS PRINCIPALES MODIFICADOS:
+# - src/components/products/CardBook.tsx (protección de autenticación)
+# - src/components/products/PDFViewer.tsx (restricciones de descarga)
+# - src/pages/BookPages.tsx (paginación y protección)
+# - src/pages/TesisPages.tsx (paginación y restricciones)
+# - src/components/home/BookGrid.tsx (estructura unificada)
+# - src/components/shared/Footer.tsx (enlaces y texto)
+# - src/hooks/useAuth.ts (recarga automática)
+# - src/components/shared/Pagination.tsx (componente de paginación)
+
+# ✅ FUNCIONALIDADES IMPLEMENTADAS:
+# - Paginación completa en todas las páginas
+# - Protección de acceso a PDFs para usuarios no autenticados
+# - Recarga automática al cerrar sesión
+# - Restricciones especiales para proyectos de investigación
+# - Interfaz unificada en todas las páginas
+# - Footer actualizado con enlaces correctos
+
+# =============================================
+# FIN DE CAMBIOS - 07/27/2025
+# =============================================

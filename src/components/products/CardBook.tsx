@@ -16,10 +16,12 @@ interface Props {
 	onReserve?: () => void; // Reservar libro físico
 	cantidadDisponible?: number; // Cantidad de ejemplares físicos disponibles
 	hasActiveOrder?: boolean; // Si el usuario ya tiene una orden activa para este libro
+	isAuthenticated?: boolean; // Si el usuario está autenticado
 }
 
-export const CardBook = ({ img, title, authors, slug, speciality, type, fragment, fileUrl, onViewDetails, onShowDetails, onReserve, cantidadDisponible, hasActiveOrder = false }: Props) => {
+export const CardBook = ({ img, title, authors, slug, speciality, type, fragment, fileUrl, onViewDetails, onShowDetails, onReserve, cantidadDisponible, hasActiveOrder = false, isAuthenticated = false }: Props) => {
 	const [showNoPdf, setShowNoPdf] = useState(false);
+	const [showAuthMessage, setShowAuthMessage] = useState(false);
 	let hideTimeout: NodeJS.Timeout;
 
 	// Función para normalizar el tipo
@@ -36,6 +38,23 @@ export const CardBook = ({ img, title, authors, slug, speciality, type, fragment
 	const noDisponibles = isFisico && (cantidadDisponible === 0 || cantidadDisponible === undefined || cantidadDisponible < 0);
 	const yaTieneOrden = isFisico && hasActiveOrder;
 	const botonDeshabilitado = noDisponibles || yaTieneOrden;
+
+	const handleViewDetails = () => {
+		if (!isAuthenticated) {
+			setShowAuthMessage(true);
+			clearTimeout(hideTimeout);
+			hideTimeout = setTimeout(() => setShowAuthMessage(false), 3000);
+			return;
+		}
+
+		if (fileUrl && onViewDetails) {
+			onViewDetails();
+		} else {
+			setShowNoPdf(true);
+			clearTimeout(hideTimeout);
+			hideTimeout = setTimeout(() => setShowNoPdf(false), 2000);
+		}
+	};
 
 	return (
 		<div className='flex flex-col h-full bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden'>
@@ -75,18 +94,15 @@ export const CardBook = ({ img, title, authors, slug, speciality, type, fragment
 				<div className='flex flex-col gap-2 mt-auto'>
 					{/* Botón Visualizar */}
 					<button
-						onClick={() => {
-							if (fileUrl && onViewDetails) {
-								onViewDetails();
-							} else {
-								setShowNoPdf(true);
-								clearTimeout(hideTimeout);
-								hideTimeout = setTimeout(() => setShowNoPdf(false), 2000);
-							}
-						}}
-						className='px-3 py-2 rounded-md text-xs font-medium transition-colors bg-green-600 text-white hover:bg-green-700 w-full'
+						onClick={handleViewDetails}
+						className={`px-3 py-2 rounded-md text-xs font-medium transition-colors w-full ${
+							isAuthenticated 
+								? 'bg-green-600 text-white hover:bg-green-700' 
+								: 'bg-gray-400 text-gray-600 cursor-not-allowed'
+						}`}
+						disabled={!isAuthenticated}
 					>
-						Visualizar
+						{isAuthenticated ? 'Visualizar' : 'Inicia sesión para visualizar'}
 					</button>
 
 					{/* Botón Reservar solo si es físico */}
@@ -119,6 +135,14 @@ export const CardBook = ({ img, title, authors, slug, speciality, type, fragment
 				<div className="absolute left-1/2 -translate-x-1/2 -top-12 bg-gray-800 text-white text-xs rounded px-3 py-2 shadow-lg z-20 animate-fade-in">
 					Este libro no cuenta con un PDF para visualizar.
 					<span className="absolute left-1/2 -bottom-1 -translate-x-1/2 w-2 h-2 bg-gray-800 rotate-45"></span>
+				</div>
+			)}
+
+			{/* Tooltip para usuario no autenticado */}
+			{showAuthMessage && (
+				<div className="absolute left-1/2 -translate-x-1/2 -top-12 bg-red-600 text-white text-xs rounded px-3 py-2 shadow-lg z-20 animate-fade-in">
+					Debes iniciar sesión para visualizar este libro.
+					<span className="absolute left-1/2 -bottom-1 -translate-x-1/2 w-2 h-2 bg-red-600 rotate-45"></span>
 				</div>
 			)}
 		</div>
