@@ -12,9 +12,9 @@ export const Logo = () => {
 				<span className='text-orange-400'>Virtual</span>
 			</p>
 
-			<p className='flex text-4xl lg:hidden'>
-				<span className='-skew-x-6 text-black'>B</span>
-				<span className='text-orange-400 skew-x-6'>V</span>
+			<p className='flex text-4xl lg:hidden gap-1.5'>
+				<span className='-skew-x-6 text-black' style={{textShadow: '-1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white'}}>B</span>
+				<span className='text-orange-400 skew-x-6' style={{textShadow: '-1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white'}}>V</span>
 			</p>
 		</Link>
 	);

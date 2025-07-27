@@ -337,11 +337,13 @@ const AdminBooksPage = () => {
   };
 
   return (
-    <div className="min-h-screen p-2 sm:p-4 md:p-8 bg-gray-50">
-      <h1 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 text-center">Gestión de Libros</h1>
-      <div className="bg-white rounded shadow p-4 sm:p-6 mb-8 md:mb-12">
-        <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-primary">Libros</h2>
-        <p className="text-gray-600 mb-3 sm:mb-4">Aquí podrás ver, agregar, editar y eliminar libros.</p>
+    <div className="max-w-7xl mx-auto">
+      <h1 className="text-2xl lg:text-3xl font-bold mb-6 lg:mb-8 text-center text-gray-800">
+        Gestión de Libros
+      </h1>
+      <div className="bg-white rounded-lg shadow-md p-4 lg:p-6 mb-6 lg:mb-8">
+        <h2 className="text-xl lg:text-2xl font-bold mb-3 lg:mb-4 text-blue-600">Libros</h2>
+        <p className="text-gray-600 mb-4 text-sm lg:text-base">Aquí podrás ver, agregar, editar y eliminar libros.</p>
         
         {/* Filtros y búsqueda */}
         <AdminFilters
@@ -378,102 +380,170 @@ const AdminBooksPage = () => {
           ]}
         />
         
-        <div className="flex flex-col sm:flex-row gap-2 mb-4 items-center">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-4 items-center">
           <button
-            className="px-4 py-2 bg-secondary text-white rounded hover:bg-secondary-dark w-full sm:w-auto transition-colors"
+            className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full sm:w-auto transition-colors text-sm sm:text-base font-medium"
             onClick={() => setShowForm((v) => !v)}
           >
             {showForm ? 'Cancelar' : 'Agregar Libro'}
           </button>
         </div>
         {showForm && (
-          <form onSubmit={handleAddLibro} className="mb-6 flex flex-col gap-3">
+          <form onSubmit={handleAddLibro} className="mb-6 flex flex-col gap-3 sm:gap-4">
             <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
-              <input type="text" name="titulo" required placeholder="Título" className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition bg-white flex-1" />
-              <input type="text" name="autor" required placeholder="Autor" className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition bg-white flex-1" />
+              <input 
+                type="text" 
+                name="titulo" 
+                required 
+                placeholder="Título" 
+                className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition bg-white flex-1 text-sm sm:text-base" 
+              />
+              <input 
+                type="text" 
+                name="autor" 
+                required 
+                placeholder="Autor" 
+                className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition bg-white flex-1 text-sm sm:text-base" 
+              />
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
-              <input type="date" name="fecha_publicacion" required placeholder="Fecha de publicación" className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition bg-white flex-1" />
-              <textarea name="sinopsis" required placeholder="Sinopsis" className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition bg-white resize-none min-h-[80px] flex-1" />
+              <input 
+                type="date" 
+                name="fecha_publicacion" 
+                required 
+                placeholder="Fecha de publicación" 
+                className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition bg-white flex-1 text-sm sm:text-base" 
+              />
+              <textarea 
+                name="sinopsis" 
+                required 
+                placeholder="Sinopsis" 
+                className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition bg-white resize-none min-h-[80px] flex-1 text-sm sm:text-base" 
+              />
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:gap-4 items-center">
-              <input type="url" name="url_portada" placeholder="URL de la portada (opcional)" className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition bg-white flex-1" id="input-url-portada" />
-              <label htmlFor="file-portada" className="cursor-pointer bg-cyan-600 text-white rounded-lg px-3 py-2 flex items-center justify-center hover:bg-cyan-700 transition mt-2 sm:mt-0">
-                <span className="text-xl font-bold">+</span>
-                <input type="file" id="file-portada" accept="image/*" style={{ display: 'none' }} onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  // Subir la imagen a Supabase Storage y obtener la URL pública
-                  const url = await uploadImageToSupabase(file);
-                  const input = document.getElementById('input-url-portada') as HTMLInputElement | null;
-                  if (input && url) input.value = url;
-                }} />
+              <input 
+                type="url" 
+                name="url_portada" 
+                placeholder="URL de la portada (opcional)" 
+                className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition bg-white flex-1 text-sm sm:text-base" 
+                id="input-url-portada" 
+              />
+              <label 
+                htmlFor="file-portada" 
+                className="cursor-pointer bg-blue-600 text-white rounded-lg px-3 sm:px-4 py-2 flex items-center justify-center hover:bg-blue-700 transition mt-2 sm:mt-0 text-sm sm:text-base font-medium"
+              >
+                <span className="text-lg sm:text-xl font-bold mr-1">+</span>
+                Subir imagen
+                <input 
+                  type="file" 
+                  id="file-portada" 
+                  accept="image/*" 
+                  style={{ display: 'none' }} 
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    // Subir la imagen a Supabase Storage y obtener la URL pública
+                    const url = await uploadImageToSupabase(file);
+                    const input = document.getElementById('input-url-portada') as HTMLInputElement | null;
+                    if (input && url) input.value = url;
+                  }} 
+                />
               </label>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:gap-4 items-center">
-              <label className="block text-sm font-medium text-gray-700">Archivo PDF (opcional):</label>
-              <input type="file" name="url_pdf" accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/epub+zip" className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition bg-white flex-1" />
+              <label className="block text-sm sm:text-base font-medium text-gray-700">Archivo PDF (opcional):</label>
+              <input 
+                type="file" 
+                name="url_pdf" 
+                accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/epub+zip" 
+                className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition bg-white flex-1 text-sm sm:text-base" 
+              />
             </div>
             {/* Checkboxes para tipo de libro */}
             <div className="flex flex-col gap-2">
-              <label className="font-medium">Tipo de libro:</label>
-              <div className="flex gap-4 flex-wrap">
-                <label className="flex items-center gap-1">
-                  <input type="checkbox" checked={tipoFisico} onChange={e => setTipoFisico(e.target.checked)} /> Físico
+              <label className="font-medium text-sm sm:text-base text-gray-700">Tipo de libro:</label>
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 flex-wrap">
+                <label className="flex items-center gap-2 text-sm sm:text-base">
+                  <input 
+                    type="checkbox" 
+                    checked={tipoFisico} 
+                    onChange={e => setTipoFisico(e.target.checked)}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  /> 
+                  Físico
                 </label>
-                <label className="flex items-center gap-1">
-                  <input type="checkbox" checked={tipoVirtual} onChange={e => setTipoVirtual(e.target.checked)} /> Virtual
+                <label className="flex items-center gap-2 text-sm sm:text-base">
+                  <input 
+                    type="checkbox" 
+                    checked={tipoVirtual} 
+                    onChange={e => setTipoVirtual(e.target.checked)}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  /> 
+                  Virtual
                 </label>
-                <label className="flex items-center gap-1">
-                  <input type="checkbox" checked={tipoTesis} onChange={e => {
-                    setTipoTesis(e.target.checked);
-                    if (e.target.checked) setTipoProyecto(false);
-                  }} /> Tesis
+                <label className="flex items-center gap-2 text-sm sm:text-base">
+                  <input 
+                    type="checkbox" 
+                    checked={tipoTesis} 
+                    onChange={e => {
+                      setTipoTesis(e.target.checked);
+                      if (e.target.checked) setTipoProyecto(false);
+                    }}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  /> 
+                  Tesis
                 </label>
-                <label className="flex items-center gap-1">
-                  <input type="checkbox" checked={tipoProyecto} onChange={e => {
-                    setTipoProyecto(e.target.checked);
-                    if (e.target.checked) setTipoTesis(false);
-                  }} /> Proyecto de Investigación
+                <label className="flex items-center gap-2 text-sm sm:text-base">
+                  <input 
+                    type="checkbox" 
+                    checked={tipoProyecto} 
+                    onChange={e => {
+                      setTipoProyecto(e.target.checked);
+                      if (e.target.checked) setTipoTesis(false);
+                    }}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  /> 
+                  Proyecto de Investigación
                 </label>
               </div>
             </div>
             {/* Campo condicional para cantidad si es Físico */}
             {tipoFisico && (
               <div className="flex flex-col gap-1">
-                <label className="font-medium">Cantidad de libros físicos:</label>
+                <label className="font-medium text-sm sm:text-base text-gray-700">Cantidad de libros físicos:</label>
                 <input
                   type="number"
                   min="1"
                   required
                   value={cantidadFisico}
                   onChange={e => setCantidadFisico(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition bg-white"
+                  className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition bg-white text-sm sm:text-base"
                   placeholder="Cantidad de ejemplares físicos"
                 />
               </div>
             )}
             {/* Campos condicionales para Tesis o Proyecto de Investigación */}
             {(tipoTesis || tipoProyecto) && (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-3 sm:gap-4">
                 <div className="flex flex-col gap-1">
-                  <label className="font-medium">Período académico:</label>
+                  <label className="font-medium text-sm sm:text-base text-gray-700">Período académico:</label>
                   <input
                     type="text"
                     required
                     value={periodoTesis}
                     onChange={e => setPeriodoTesis(e.target.value)}
-                    className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition bg-white"
+                    className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition bg-white text-sm sm:text-base"
                     placeholder="Ej: 2023-2024"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="font-medium">Tutor:</label>
+                  <label className="font-medium text-sm sm:text-base text-gray-700">Tutor:</label>
                   <select
                     required
                     value={tutorTesis}
                     onChange={e => setTutorTesis(e.target.value)}
-                    className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition bg-white"
+                    className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition bg-white text-sm sm:text-base"
                   >
                     <option value="">Selecciona un tutor</option>
                     {tutores.map(t => (
@@ -482,31 +552,31 @@ const AdminBooksPage = () => {
                   </select>
                   <button
                     type="button"
-                    className="mt-2 bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-xs font-medium w-fit"
+                    className="mt-2 bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-green-700 text-xs sm:text-sm font-medium w-fit transition-colors"
                     onClick={() => setShowAddTutor(v => !v)}
                   >
                     {showAddTutor ? 'Cancelar' : 'Agregar tutor'}
                   </button>
                   {showAddTutor && (
-                    <div className="flex flex-col gap-2 mt-2 bg-gray-50 p-3 rounded border border-gray-200">
+                    <div className="flex flex-col gap-2 mt-2 bg-gray-50 p-3 rounded-lg border border-gray-200">
                       <input
                         type="text"
                         placeholder="Nombre del tutor"
                         value={nuevoNombreTutor}
                         onChange={e => setNuevoNombreTutor(e.target.value)}
-                        className="border border-gray-300 rounded px-2 py-1"
+                        className="border border-gray-300 rounded px-2 py-1 text-sm sm:text-base"
                       />
                       <input
                         type="text"
                         placeholder="Apellido del tutor"
                         value={nuevoApellidoTutor}
                         onChange={e => setNuevoApellidoTutor(e.target.value)}
-                        className="border border-gray-300 rounded px-2 py-1"
+                        className="border border-gray-300 rounded px-2 py-1 text-sm sm:text-base"
                       />
                       {addTutorError && <span className="text-red-500 text-xs">{addTutorError}</span>}
                       <button
                         type="button"
-                        className="bg-cyan-600 text-white px-3 py-1 rounded hover:bg-cyan-700 text-xs font-medium"
+                        className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-xs sm:text-sm font-medium transition-colors"
                         disabled={addTutorLoading}
                         onClick={async () => {
                           setAddTutorError(null);
@@ -541,7 +611,11 @@ const AdminBooksPage = () => {
               </div>
             )}
             {/* Reemplazar input de especialidad por un select */}
-            <select name="especialidad" required className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition bg-white w-full" >
+            <select 
+              name="especialidad" 
+              required 
+              className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition bg-white w-full text-sm sm:text-base" 
+            >
               <option value="">Selecciona una especialidad</option>
               <option value="Arquitectura">Arquitectura</option>
               <option value="Ingenieria Civil">Ingenieria Civil</option>
@@ -551,34 +625,37 @@ const AdminBooksPage = () => {
               <option value="Ingenieria Electrica">Ingenieria Electrica</option>
               <option value="Ingenieria en Sistemas">Ingenieria en Sistemas</option>
             </select>
-            {addError && <p className="text-red-500 text-sm">{addError}</p>}
-            <button type="submit" className="bg-cyan-600 text-white rounded-lg px-4 py-2 mt-2 hover:bg-cyan-700 transition w-full sm:w-auto">Guardar Libro</button>
+            {addError && <p className="text-red-500 text-sm sm:text-base p-2 bg-red-50 rounded-lg">{addError}</p>}
+            <button 
+              type="submit" 
+              className="bg-blue-600 text-white rounded-lg px-4 py-2 mt-2 hover:bg-blue-700 transition w-full sm:w-auto text-sm sm:text-base font-medium"
+            >
+              Guardar Libro
+            </button>
           </form>
         )}
         {/* Cuadros de libros */}
-        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 justify-items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4">
           {currentLibros.map((libro) => (
             <div
               key={libro.id_libro}
-              className="bg-gray-100 rounded-lg shadow p-4 flex flex-col items-center min-h-[180px] max-h-[220px] w-full xs:w-[180px] sm:w-[200px] max-w-[220px] justify-center cursor-pointer transition-all hover:shadow-lg hover:bg-cyan-50"
-              style={{ minHeight: 180, maxHeight: 220, maxWidth: 220 }}
+              className="bg-gray-100 rounded-lg shadow-md p-3 lg:p-4 flex flex-col items-center min-h-[180px] lg:min-h-[200px] justify-center cursor-pointer transition-all hover:shadow-lg hover:bg-blue-50"
               onClick={() => setSelectedLibroId(libro.id_libro)}
             >
               {libro.url_portada && (
                 <img
                   src={libro.url_portada}
                   alt={libro.titulo}
-                  className="w-20 h-28 sm:w-24 sm:h-32 object-cover rounded mb-2 self-center"
-                  style={{ maxWidth: 96, maxHeight: 128 }}
+                  className="w-16 h-20 lg:w-20 lg:h-24 object-cover rounded mb-2 lg:mb-3"
                 />
               )}
-              <strong className="text-base mb-1 truncate w-full text-center block overflow-hidden whitespace-nowrap" style={{ maxWidth: 180 }} title={libro.titulo}>
+              <strong className="text-sm lg:text-base mb-2 truncate w-full text-center text-gray-800" title={libro.titulo}>
                 {libro.titulo}
               </strong>
               {selectedLibroId === libro.id_libro && (
-                <div className="flex gap-2 mt-2 flex-wrap justify-center">
+                <div className="flex gap-1 lg:gap-2 mt-2 lg:mt-3">
                   <button
-                    className="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-xs"
+                    className="px-2 lg:px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-xs lg:text-sm transition-colors"
                     onClick={e => {
                       e.stopPropagation();
                       setEditLibro(libro);
@@ -587,7 +664,7 @@ const AdminBooksPage = () => {
                     Editar
                   </button>
                   <button
-                    className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs"
+                    className="px-2 lg:px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs lg:text-sm transition-colors"
                     onClick={e => {
                       e.stopPropagation();
                       setConfirmDeleteId(libro.id_libro);
@@ -611,19 +688,19 @@ const AdminBooksPage = () => {
         />
         {/* Modal de confirmación de eliminación */}
         {confirmDeleteId !== null && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-2">
-            <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 max-w-xs w-full text-center">
-              <p className="mb-4">¿Estás seguro de que deseas eliminar este libro?</p>
-              <div className="flex justify-center gap-4 flex-wrap">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-3 sm:p-4">
+            <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 max-w-xs sm:max-w-sm w-full text-center">
+              <p className="mb-4 text-sm sm:text-base text-gray-700">¿Estás seguro de que deseas eliminar este libro?</p>
+              <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4">
                 <button
-                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 w-full sm:w-auto"
+                  className="px-3 sm:px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 w-full sm:w-auto text-sm sm:text-base transition-colors"
                   onClick={() => setConfirmDeleteId(null)}
                   disabled={deleteLoading !== null}
                 >
                   Cancelar
                 </button>
                 <button
-                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 w-full sm:w-auto"
+                  className="px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 w-full sm:w-auto text-sm sm:text-base transition-colors"
                   onClick={() => handleDeleteLibro(confirmDeleteId)}
                   disabled={deleteLoading !== null}
                 >
@@ -635,49 +712,82 @@ const AdminBooksPage = () => {
         )}
         {/* Modal de edición */}
         {editLibro && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-2">
-            <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 max-w-md w-full text-center">
-              <h3 className="text-lg sm:text-xl font-bold mb-4">Editar libro</h3>
-              <form onSubmit={handleEditLibro} className="flex flex-col gap-3 text-left" encType="multipart/form-data">
-                <label className="font-medium">Título:</label>
-                <input type="text" name="titulo" defaultValue={editLibro.titulo} required placeholder="Título" className="border border-gray-300 rounded-lg px-4 py-2 w-full" />
-                <label className="font-medium">Sinopsis:</label>
-                <textarea name="sinopsis" defaultValue={editLibro.sinopsis} required placeholder="Sinopsis" className="border border-gray-300 rounded-lg px-4 py-2 resize-none min-h-[80px] w-full" />
-                <label className="font-medium">URL de la portada (opcional):</label>
-                <input type="url" name="url_portada" defaultValue={editLibro.url_portada || ''} placeholder="URL de la portada (opcional)" className="border border-gray-300 rounded-lg px-4 py-2 w-full" />
-                <label className="font-medium">Fecha de publicación:</label>
-                <input type="date" name="fecha_publicacion" defaultValue={editLibro.fecha_publicacion ? editLibro.fecha_publicacion.substring(0, 10) : ''} required placeholder="Fecha de publicación" className="border border-gray-300 rounded-lg px-4 py-2 w-full" />
-                <label className="font-medium">Archivo PDF (opcional):</label>
-                <input type="file" name="url_pdf" accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/epub+zip" className="border border-gray-300 rounded-lg px-4 py-2 w-full" />
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-3 sm:p-4">
+            <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 max-w-md sm:max-w-lg w-full text-center max-h-[90vh] overflow-y-auto">
+              <h3 className="text-lg sm:text-xl font-bold mb-4 text-gray-800">Editar libro</h3>
+              <form onSubmit={handleEditLibro} className="flex flex-col gap-3 sm:gap-4 text-left" encType="multipart/form-data">
+                <label className="font-medium text-sm sm:text-base text-gray-700">Título:</label>
+                <input 
+                  type="text" 
+                  name="titulo" 
+                  defaultValue={editLibro.titulo} 
+                  required 
+                  placeholder="Título" 
+                  className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 w-full text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-400 transition" 
+                />
+                <label className="font-medium text-sm sm:text-base text-gray-700">Sinopsis:</label>
+                <textarea 
+                  name="sinopsis" 
+                  defaultValue={editLibro.sinopsis} 
+                  required 
+                  placeholder="Sinopsis" 
+                  className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 resize-none min-h-[80px] w-full text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-400 transition" 
+                />
+                <label className="font-medium text-sm sm:text-base text-gray-700">URL de la portada (opcional):</label>
+                <input 
+                  type="url" 
+                  name="url_portada" 
+                  defaultValue={editLibro.url_portada || ''} 
+                  placeholder="URL de la portada (opcional)" 
+                  className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 w-full text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-400 transition" 
+                />
+                <label className="font-medium text-sm sm:text-base text-gray-700">Fecha de publicación:</label>
+                <input 
+                  type="date" 
+                  name="fecha_publicacion" 
+                  defaultValue={editLibro.fecha_publicacion ? editLibro.fecha_publicacion.substring(0, 10) : ''} 
+                  required 
+                  placeholder="Fecha de publicación" 
+                  className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 w-full text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-400 transition" 
+                />
+                <label className="font-medium text-sm sm:text-base text-gray-700">Archivo PDF (opcional):</label>
+                <input 
+                  type="file" 
+                  name="url_pdf" 
+                  accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/epub+zip" 
+                  className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 w-full text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-400 transition" 
+                />
                 <div className="flex flex-col gap-2">
-                  <label className="font-medium">Tipo de libro:</label>
-                  <div className="flex gap-4 flex-wrap">
-                    <label className="flex items-center gap-1">
+                  <label className="font-medium text-sm sm:text-base text-gray-700">Tipo de libro:</label>
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 flex-wrap">
+                    <label className="flex items-center gap-2 text-sm sm:text-base">
                       <input
                         type="checkbox"
                         checked={tipoFisico}
                         onChange={e => setTipoFisico(e.target.checked)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                       /> Físico
                     </label>
-                    <label className="flex items-center gap-1">
+                    <label className="flex items-center gap-2 text-sm sm:text-base">
                       <input
                         type="checkbox"
                         checked={tipoVirtual}
                         onChange={e => setTipoVirtual(e.target.checked)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                       /> Virtual
                     </label>
                   </div>
                 </div>
                 {tipoFisico && (
                   <div className="flex flex-col gap-1">
-                    <label className="font-medium">Cantidad de libros físicos:</label>
+                    <label className="font-medium text-sm sm:text-base text-gray-700">Cantidad de libros físicos:</label>
                     <input
                       type="number"
                       min="1"
                       required
                       value={cantidadFisico}
                       onChange={e => setCantidadFisico(e.target.value)}
-                      className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition bg-white"
+                      className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition bg-white text-sm sm:text-base"
                       placeholder="Cantidad de ejemplares físicos"
                     />
                   </div>
@@ -770,8 +880,12 @@ const AdminBooksPage = () => {
                   </div>
                 )}
                 {/* Reemplazar input de especialidad por un select */}
-                <label className="font-medium">Especialidad:</label>
-                <select name="especialidad" required className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition bg-white w-full">
+                <label className="font-medium text-sm sm:text-base text-gray-700">Especialidad:</label>
+                <select 
+                  name="especialidad" 
+                  required 
+                  className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition bg-white w-full text-sm sm:text-base"
+                >
                   <option value="">Selecciona una especialidad</option>
                   <option value="Arquitectura">Arquitectura</option>
                   <option value="Ingenieria Civil">Ingenieria Civil</option>
@@ -781,10 +895,22 @@ const AdminBooksPage = () => {
                   <option value="Ingenieria Electrica">Ingenieria Electrica</option>
                   <option value="Ingenieria en Sistemas">Ingenieria en Sistemas</option>
                 </select>
-                {editError && <p className="text-red-500 text-sm">{editError}</p>}
-                <div className="flex gap-2 justify-end mt-2 flex-wrap">
-                  <button type="button" onClick={() => setEditLibro(null)} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 w-full sm:w-auto">Cancelar</button>
-                  <button type="submit" className="bg-cyan-600 text-white rounded-lg px-4 py-2 hover:bg-cyan-700 transition w-full sm:w-auto" disabled={editLoading}>{editLoading ? 'Guardando...' : 'Guardar cambios'}</button>
+                {editError && <p className="text-red-500 text-sm sm:text-base p-2 bg-red-50 rounded-lg">{editError}</p>}
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-end mt-2">
+                  <button 
+                    type="button" 
+                    onClick={() => setEditLibro(null)} 
+                    className="px-3 sm:px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 w-full sm:w-auto text-sm sm:text-base transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button 
+                    type="submit" 
+                    className="bg-blue-600 text-white rounded-lg px-3 sm:px-4 py-2 hover:bg-blue-700 transition w-full sm:w-auto text-sm sm:text-base font-medium" 
+                    disabled={editLoading}
+                  >
+                    {editLoading ? 'Guardando...' : 'Guardar cambios'}
+                  </button>
                 </div>
               </form>
             </div>

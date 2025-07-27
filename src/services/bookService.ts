@@ -43,9 +43,13 @@ export const fetchBooks = async () => {
     // Crear un mapa de PDFs por libro_id
     const pdfsMap = new Map();
     if (pdfs) {
+      console.log('📄 PDFs encontrados en la base de datos:', pdfs.length);
       pdfs.forEach(pdf => {
+        console.log(`   📋 Libro ID: ${pdf.libro_id}, URL: ${pdf.direccion_del_libro}`);
         pdfsMap.set(pdf.libro_id, pdf.direccion_del_libro);
       });
+    } else {
+      console.log('❌ No se encontraron PDFs en la base de datos');
     }
     
     // Debug: Contar libros con PDFs
@@ -56,15 +60,22 @@ export const fetchBooks = async () => {
     // Buscar el PDF usando el mapa
     let fileUrl = '';
     
+    console.log(`🔍 Procesando libro ${book.id_libro}: ${book.titulo}`);
+    
     const rawUrl = pdfsMap.get(book.id_libro);
     if (rawUrl) {
+      console.log(`   📄 PDF encontrado: ${rawUrl}`);
       // Si la URL ya es pública, usarla tal cual. Si es solo la ruta, construir la URL pública.
       if (rawUrl.startsWith('http')) {
         fileUrl = rawUrl;
+        console.log(`   ✅ URL ya es pública: ${fileUrl}`);
       } else {
         // Construir la URL pública
         fileUrl = `https://ueufprdedokleqlyooyq.supabase.co/storage/v1/object/public/${rawUrl}`;
+        console.log(`   🔗 URL construida: ${fileUrl}`);
       }
+    } else {
+      console.log(`   ❌ No tiene PDF asociado`);
     }
     // Obtener cantidad disponible de libros físicos (si aplica)
     let cantidadDisponible = undefined;
@@ -100,13 +111,16 @@ export const fetchBooks = async () => {
                     // Debug: Contar PDFs
                 if (mappedBook.fileUrl) {
                   librosConPDF++;
+                  console.log(`✅ Libro ${mappedBook.id} tiene PDF: ${mappedBook.fileUrl}`);
                 } else {
                   librosSinPDF++;
+                  console.log(`❌ Libro ${mappedBook.id} NO tiene PDF`);
                 }
     
     return mappedBook;
   });
-  
+
+  console.log(`📊 RESUMEN: ${librosConPDF} libros con PDF, ${librosSinPDF} libros sin PDF`);
 
   } catch (error) {
     console.error('Error en fetchBooks:', error);

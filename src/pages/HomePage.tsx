@@ -39,17 +39,17 @@ export const HomePage = () => {
 
 			<Brands />
 			{loading ? (
-				<div className="text-center py-12">
-					<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-					<p className="text-gray-500 text-lg">Cargando libros...</p>
+				<div className="text-center py-8 sm:py-12">
+					<div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-blue-500 mx-auto mb-3 sm:mb-4"></div>
+					<p className="text-gray-500 text-base sm:text-lg">Cargando libros...</p>
 				</div>
 			) : error ? (
-				<div className="text-center py-12">
-					<div className="text-red-500 text-6xl mb-4">📚</div>
-					<p className="text-red-500 text-lg mb-2">{error}</p>
+				<div className="text-center py-8 sm:py-12">
+					<div className="text-red-500 text-4xl sm:text-6xl mb-3 sm:mb-4">📚</div>
+					<p className="text-red-500 text-base sm:text-lg mb-2">{error}</p>
 					<button 
 						onClick={() => window.location.reload()} 
-						className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+						className="mt-3 sm:mt-4 bg-blue-600 text-white px-3 sm:px-4 py-2 rounded hover:bg-blue-700 transition text-sm sm:text-base"
 					>
 						Reintentar
 					</button>

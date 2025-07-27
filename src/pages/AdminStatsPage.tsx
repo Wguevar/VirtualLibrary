@@ -62,43 +62,67 @@ const AdminStatsPage = () => {
   };
 
   return (
-    <div className="min-h-screen p-2 sm:p-4 md:p-8 bg-gray-50">
-      <h1 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 text-center">Dashboard de Administrador</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mb-8 md:mb-12">
+    <div className="max-w-6xl mx-auto">
+      <h1 className="text-2xl lg:text-3xl font-bold mb-6 lg:mb-8 text-center text-gray-800">
+        Dashboard de Administrador
+      </h1>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-8 lg:mb-12">
         {/* Estadísticas generales */}
-        <div className="bg-white rounded shadow p-4 sm:p-6 flex flex-col items-center">
-          <span className="text-lg sm:text-2xl font-semibold">Libros Totales</span>
-          <span className="text-2xl sm:text-4xl font-bold text-blue-600 mt-2">
+        <div className="bg-white rounded-lg shadow-md p-4 lg:p-6 flex flex-col items-center">
+          <span className="text-base lg:text-lg font-semibold text-gray-700 text-center">
+            Libros Totales
+          </span>
+          <span className="text-3xl lg:text-4xl font-bold text-blue-600 mt-2">
             {loading ? '...' : error ? 'Error' : totalLibros}
           </span>
         </div>
-        <div className="bg-white rounded shadow p-4 sm:p-6 flex flex-col items-center">
-          <span className="text-lg sm:text-2xl font-semibold">Tesis Totales</span>
-          <span className="text-2xl sm:text-4xl font-bold text-green-600 mt-2">
+        
+        <div className="bg-white rounded-lg shadow-md p-4 lg:p-6 flex flex-col items-center">
+          <span className="text-base lg:text-lg font-semibold text-gray-700 text-center">
+            Tesis Totales
+          </span>
+          <span className="text-3xl lg:text-4xl font-bold text-green-600 mt-2">
             {loading ? '...' : error ? 'Error' : totalTesis}
           </span>
         </div>
-        <div className="bg-white rounded shadow p-4 sm:p-6 flex flex-col items-center">
-          <span className="text-lg sm:text-2xl font-semibold">Proyectos de Investigación</span>
-          <span className="text-2xl sm:text-4xl font-bold text-orange-600 mt-2">
+        
+        <div className="bg-white rounded-lg shadow-md p-4 lg:p-6 flex flex-col items-center sm:col-span-2 lg:col-span-1">
+          <span className="text-base lg:text-lg font-semibold text-gray-700 text-center">
+            Proyectos de Investigación
+          </span>
+          <span className="text-3xl lg:text-4xl font-bold text-orange-600 mt-2">
             {loading ? '...' : error ? 'Error' : totalProyectos}
           </span>
         </div>
       </div>
+      
       {/* Gráfica de barras */}
-      <div className="bg-white rounded shadow p-4 sm:p-6 max-w-full md:max-w-2xl mx-auto overflow-x-auto">
-        <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center">Gráfica de Libros, Tesis y Proyectos</h2>
-        <div className="w-full min-w-[320px]" style={{ minWidth: 320 }}>
-          <ResponsiveContainer width="100%" height={300}>
+      <div className="bg-white rounded-lg shadow-md p-4 lg:p-6 max-w-4xl mx-auto">
+        <h2 className="text-lg lg:text-xl font-semibold mb-4 text-center text-gray-800">
+          Gráfica de Libros, Tesis y Proyectos
+        </h2>
+        <div className="w-full h-64 lg:h-80">
+          <ResponsiveContainer width="100%" height={250}>
             <BarChart data={[
-              { name: 'Libros Totales', value: totalLibros || 0, color: '#2563eb' },
+              { name: 'Libros', value: totalLibros || 0, color: '#2563eb' },
               { name: 'Tesis', value: totalTesis || 0, color: '#22c55e' },
-              { name: 'Proyectos de Investigación', value: totalProyectos || 0, color: '#f59e42' },
+              { name: 'Proyectos', value: totalProyectos || 0, color: '#f59e42' },
             ]}>
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-              <YAxis allowDecimals={false} />
+              <XAxis 
+                dataKey="name" 
+                tick={{ fontSize: 10, fill: '#6b7280' }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis 
+                allowDecimals={false}
+                tick={{ fontSize: 10, fill: '#6b7280' }}
+                axisLine={false}
+                tickLine={false}
+              />
               <Tooltip content={CustomTooltip} />
-              <Bar dataKey="value">
+              <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                 <Cell key="libros" fill="#2563eb" />
                 <Cell key="tesis" fill="#22c55e" />
                 <Cell key="proyectos" fill="#f59e42" />
@@ -107,7 +131,12 @@ const AdminStatsPage = () => {
           </ResponsiveContainer>
         </div>
       </div>
-      {error && <div className="text-center text-red-500 mt-4">{error}</div>}
+      
+      {error && (
+        <div className="text-center text-red-500 mt-4 p-3 bg-red-50 rounded-lg">
+          {error}
+        </div>
+      )}
     </div>
   );
 };

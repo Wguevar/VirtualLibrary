@@ -262,7 +262,7 @@ export const BookPages = () => {
 
   return (
     <>
-      <h1 className='text-5xl font-semibold text-center mb-12'>
+      <h1 className='text-3xl sm:text-4xl lg:text-5xl font-semibold text-center mb-8 sm:mb-12'>
         Libros
       </h1>
 
@@ -306,13 +306,13 @@ export const BookPages = () => {
           specialities={specialitiesForFilter}
         />
 
-        <div className='col-span-2 lg:col-span-2 xl:col-span-4 flex flex-col gap-12'>
+        <div className='col-span-2 lg:col-span-2 xl:col-span-4 flex flex-col gap-8 sm:gap-12'>
           {filteredBooks.length === 0 ? (
             <div className="my-32">
               <p className="text-center text-gray-500 text-lg my-8">No hay libros disponibles.</p>
             </div>
           ) : (
-            <div className='grid grid-cols-2 gap-3 gap-y-10 xl:grid-cols-4'>
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 gap-y-8 sm:gap-y-10 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'>
               <AnimatePresence>
                 {filteredBooks.map(book => (
                   <motion.div
@@ -362,7 +362,7 @@ export const BookPages = () => {
             onClick={handleCloseModal} // Cerrar al hacer click fuera
           >
             <motion.div
-              className="bg-white rounded-lg shadow-lg max-w-4xl w-full p-8 relative flex flex-col items-center"
+              className="bg-white rounded-lg shadow-lg max-w-4xl w-[95%] max-h-[90vh] p-4 sm:p-6 lg:p-8 relative flex flex-col items-center overflow-hidden"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -376,20 +376,16 @@ export const BookPages = () => {
                 &times;
               </button>
               {/* Título y visor PDF */}
-              <h3 className="text-lg font-bold text-center w-full truncate mb-4">{selectedBook.title}</h3>
+              <h3 className="text-base sm:text-lg font-bold text-center w-full truncate mb-2 sm:mb-4">{selectedBook.title}</h3>
               
               {/* Contenido del modal */}
-              <div className="w-full h-[65vh] mb-4 flex items-center justify-center relative">
+              <div className="w-full h-[50vh] sm:h-[60vh] lg:h-[65vh] mb-4 flex items-center justify-center relative">
                 {/* Botón flotante para detalles */}
                 <BookDetailsPopover book={selectedBook} />
                 
                 {/* Mostrar PDF si existe, sino mostrar mensaje */}
                 {selectedBook.fileUrl ? (
-                  <div className="w-full h-[65vh] mb-4 flex items-center justify-center relative">
-                    {/* Botón flotante para detalles */}
-                    <BookDetailsPopover book={selectedBook} />
-                    <PDFViewer fileUrl={selectedBook.fileUrl} />
-                  </div>
+                  <PDFViewer fileUrl={selectedBook.fileUrl} />
                 ) : (
                   <div className="text-center">
                     <div className="text-red-500 text-6xl mb-4">📄</div>

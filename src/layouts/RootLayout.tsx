@@ -4,6 +4,7 @@ import { Footer } from '../components/shared/Footer';
 import { Banner } from '../components/home/Banner';
 import { useAuth } from '../hooks/useAuth';
 import MorosoBlock from '../components/shared/MorosoBlock';
+import { ScrollToTop } from '../components/shared/ScrollToTop';
 
 export const RootLayout = () => {
 	const { pathname } = useLocation();
@@ -57,6 +58,7 @@ export const RootLayout = () => {
 				<Outlet />
 			</main>
 			<Footer />
+			<ScrollToTop />
 		</div>
 	);
 };

@@ -18,6 +18,7 @@ export const Navbar = () => {
 	const { user, isAuthenticated, logout, isConfigured, loading } = useAuth();
 	const navigate = useNavigate();
 	const [showMenu, setShowMenu] = useState(false);
+	const [showMobileMenu, setShowMobileMenu] = useState(false);
 	const [showPrestamos, setShowPrestamos] = useState(false);
 	const [prestamos, setPrestamos] = useState<any[]>([]);
 	const userMenuRef = useRef<HTMLDivElement>(null);
@@ -71,6 +72,19 @@ export const Navbar = () => {
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => document.removeEventListener('mousedown', handleClickOutside);
 	}, [showMenu]);
+
+	useEffect(() => {
+		if (!showMobileMenu) return;
+		function handleClickOutsideMobile(event: MouseEvent) {
+			const target = event.target as Node;
+			const mobileMenu = document.querySelector('[data-mobile-menu]');
+			if (mobileMenu && !mobileMenu.contains(target)) {
+				setShowMobileMenu(false);
+			}
+		}
+		document.addEventListener('mousedown', handleClickOutsideMobile);
+		return () => document.removeEventListener('mousedown', handleClickOutsideMobile);
+	}, [showMobileMenu]);
 
 	useEffect(() => {
 		if (!showPrestamos) return;
@@ -137,6 +151,10 @@ export const Navbar = () => {
 		});
 	};
 
+	const handleToggleMobileMenu = () => {
+		setShowMobileMenu(!showMobileMenu);
+	};
+
 	const handleTogglePrestamos = () => {
 		setShowPrestamos(v => {
 			if (!v) setShowMenu(false);
@@ -177,6 +195,7 @@ export const Navbar = () => {
 		navigate(to);
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 		setShowMenu(false);
+		setShowMobileMenu(false);
 	};
 
 	// Si está cargando, mostrar navbar básico
@@ -223,22 +242,22 @@ export const Navbar = () => {
 	}
 
 	return (
-		<header className='bg-primary text-white py-4 flex items-center justify-between px-5 border-b border-primary-dark lg:px-12 shadow-lg'>
+		<header className='bg-primary text-white py-3 sm:py-4 flex items-center justify-between px-3 sm:px-5 border-b border-primary-dark lg:px-12 shadow-lg'>
 			<Logo />
 
-			<nav className='space-x-5 hidden md:flex'>
+			<nav className='space-x-3 sm:space-x-5 hidden md:flex'>
 				{navbarLinks.map(link => (
 					<button
 						key={link.id}
 						onClick={() => handleNavLinkClick(link.href)}
-						className={`transition-all duration-300 font-medium hover:text-secondary hover:underline bg-transparent border-none outline-none cursor-pointer text-white ${window.location.pathname === link.href ? 'text-secondary underline' : ''}`}
+						className={`transition-all duration-300 font-medium hover:text-secondary hover:underline bg-transparent border-none outline-none cursor-pointer text-white text-sm sm:text-base ${window.location.pathname === link.href ? 'text-secondary underline' : ''}`}
 					>
 						{link.title}
 					</button>
 				))}
 			</nav>
 
-			<div className='flex gap-5 items-center relative'>
+			<div className='flex gap-3 sm:gap-5 items-center relative'>
 				<button onClick={() => setShowSearch(v => !v)} className='text-white hover:text-secondary transition-colors'>
 					<HiOutlineSearch size={25} />
 				</button>
@@ -405,15 +424,15 @@ export const Navbar = () => {
 				)}
 			</div>
 
-			<button className='md:hidden' onClick={() => setShowMenu(v => !v)}>
+			<button className='md:hidden' onClick={handleToggleMobileMenu}>
 				<FaBarsStaggered size={25} />
 			</button>
 
 			{/* Menú desplegable mobile */}
-			{showMenu && (
+			{showMobileMenu && (
 				<div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex justify-end md:hidden">
-					<div className="w-2/3 max-w-xs bg-white h-full shadow-lg p-6 flex flex-col gap-6 animate-slide-in">
-						<button onClick={() => setShowMenu(false)} className="self-end text-2xl text-gray-500 mb-4">&times;</button>
+					<div data-mobile-menu className="w-2/3 max-w-xs bg-white h-full shadow-lg p-6 flex flex-col gap-6 animate-slide-in">
+						<button onClick={() => setShowMobileMenu(false)} className="self-end text-2xl text-gray-500 mb-4">&times;</button>
 						<button onClick={() => handleNavLinkClick('/')} className={`${window.location.pathname === '/' ? 'text-secondary underline' : ''} text-lg font-semibold`}>Inicio</button>
 						<button onClick={() => handleNavLinkClick('/libros')} className={`${window.location.pathname === '/libros' ? 'text-secondary underline' : ''} text-lg font-semibold`}>Libros</button>
 						<button onClick={() => handleNavLinkClick('/tesis')} className={`${window.location.pathname === '/tesis' ? 'text-secondary underline' : ''} text-lg font-semibold`}>Proyectos de Investigación</button>
