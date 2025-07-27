@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../supabase/client';
 import { Pagination } from '../components/shared/Pagination';
 import { AdminFilters } from '../components/shared/AdminFilters';
+import { extractPDFMetadataSimple, detectDocumentType } from '../utils/pdfMetadataSimple';
 
 interface Libro {
   id_libro: number;
   titulo: string;
+  autor?: string;
   sinopsis: string;
   type?: string;
   tipo?: string;
@@ -19,7 +21,7 @@ interface Libro {
 async function uploadImageToSupabase(file: File): Promise<string | null> {
   const fileExt = file.name.split('.').pop();
   const fileName = `${Date.now()}.${fileExt}`;
-  const { data, error } = await supabase.storage.from('fotos.portada').upload(fileName, file);
+  const { error } = await supabase.storage.from('fotos.portada').upload(fileName, file);
   if (error) {
     alert('Error al subir la imagen: ' + error.message);
     return null;
@@ -33,7 +35,7 @@ async function uploadImageToSupabase(file: File): Promise<string | null> {
 async function uploadPdfToSupabase(file: File): Promise<string | null> {
   const fileExt = file.name.split('.').pop();
   const fileName = `${Date.now()}.${fileExt}`;
-  const { data, error } = await supabase.storage.from('libros').upload(fileName, file);
+  const { error } = await supabase.storage.from('libros').upload(fileName, file);
   if (error) {
     alert('Error al subir el PDF: ' + error.message);
     return null;
@@ -46,13 +48,9 @@ async function uploadPdfToSupabase(file: File): Promise<string | null> {
 const AdminBooksPage = () => {
   const [libros, setLibros] = useState<Libro[]>([]);
   const [filteredLibros, setFilteredLibros] = useState<Libro[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [newTitulo, setNewTitulo] = useState('');
-  const [newSinopsis, setNewSinopsis] = useState('');
   const [addError, setAddError] = useState<string | null>(null);
-  const [addLoading, setAddLoading] = useState(false);
+
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
   const [editLibro, setEditLibro] = useState<Libro | null>(null);
@@ -82,41 +80,59 @@ const AdminBooksPage = () => {
   const [nuevoApellidoTutor, setNuevoApellidoTutor] = useState('');
   const [addTutorLoading, setAddTutorLoading] = useState(false);
   const [addTutorError, setAddTutorError] = useState<string | null>(null);
+  
+  // Estados para extracción automática de metadatos
+  const [isExtractingMetadata, setIsExtractingMetadata] = useState(false);
+  const [metadataExtracted, setMetadataExtracted] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   // Obtener lista de libros
   const fetchLibros = async () => {
-    setLoading(true);
-    setError(null);
-    let selectFields = 'id_libro, titulo, sinopsis, fecha_publicacion, url_portada, tipo, especialidad, libros_virtuales:libros_virtuales(direccion_del_libro)';
-    let { data, error } = await supabase
-      .from('Libros')
-      .select(selectFields);
-    // Si da error por 'tipo', intenta con 'type'
-    if (error && error.message && error.message.includes('tipo')) {
-      selectFields = 'id_libro, titulo, sinopsis, fecha_publicacion, url_portada, type, especialidad, libros_virtuales:libros_virtuales(direccion_del_libro)';
-      ({ data, error } = await supabase
-        .from('Libros')
-        .select(selectFields));
+    
+    // Intentar diferentes combinaciones de campos (sin autor ya que no existe en la BD)
+    const fieldCombinations = [
+      'id_libro, titulo, sinopsis, fecha_publicacion, url_portada, tipo, especialidad, libros_virtuales:libros_virtuales(direccion_del_libro)',
+      'id_libro, titulo, sinopsis, fecha_publicacion, url_portada, type, especialidad, libros_virtuales:libros_virtuales(direccion_del_libro)',
+      'id_libro, titulo, sinopsis, fecha_publicacion, url_portada, tipo, libros_virtuales:libros_virtuales(direccion_del_libro)',
+      'id_libro, titulo, sinopsis, fecha_publicacion, url_portada, type, libros_virtuales:libros_virtuales(direccion_del_libro)',
+      'id_libro, titulo, sinopsis, fecha_publicacion, url_portada, libros_virtuales:libros_virtuales(direccion_del_libro)'
+    ];
+    
+    let data = null;
+    let error = null;
+    
+    
+    for (const selectFields of fieldCombinations) {
+      
+      try {
+        const result = await supabase
+          .from('Libros')
+          .select(selectFields);
+        
+        data = result.data;
+        error = result.error;
+        
+        if (!error) {
+          break;
+        } else {
+        }
+      } catch (err) {
+      }
     }
-    // Si da error por 'especialidad', omite ese campo
-    if (error && error.message && error.message.includes('especialidad')) {
-      selectFields = selectFields.replace(', especialidad', '').replace(',especialidad', '');
-      ({ data, error } = await supabase
-        .from('Libros')
-        .select(selectFields));
-    }
-    if (error) {
-      setError('Error al obtener los libros');
+    
+    if (error || !data) {
       setLibros([]);
     } else {
-      // Asociar la URL del PDF si existe
+      
+      // Asociar la URL del PDF si existe (el autor se maneja por separado ya que no existe en la BD)
       const librosConPdf = (data as any[]).map(libro => ({
         ...libro,
+        autor: '', // Campo vacío ya que no existe en la BD
         url_pdf: libro.libros_virtuales && libro.libros_virtuales.length > 0 ? libro.libros_virtuales[0].direccion_del_libro : ''
       }));
+      
       setLibros(librosConPdf);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -169,18 +185,13 @@ const AdminBooksPage = () => {
     fetchTutores();
   }, []);
 
-  // Depuración: mostrar libros en consola
-  console.log('[ADMIN] Libros cargados:', libros);
-
   // Agregar libro
   const handleAddLibro = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setAddError(null);
-    setAddLoading(true);
     const form = e.currentTarget;
     const formData = new FormData(form);
     const titulo = formData.get('titulo')?.toString().trim() || '';
-    const autor = formData.get('autor')?.toString().trim() || '';
     const fecha_publicacion = formData.get('fecha_publicacion')?.toString() || '';
     const sinopsis = formData.get('sinopsis')?.toString().trim() || '';
     const url_portada = formData.get('url_portada')?.toString().trim() || '';
@@ -202,9 +213,8 @@ const AdminBooksPage = () => {
     if (pdfFile && pdfFile.size > 0) {
       url_pdf = (await uploadPdfToSupabase(pdfFile)) || '';
     }
-    if (!titulo || !autor || !fecha_publicacion || !sinopsis || !tipo || !especialidad) {
+    if (!titulo || !fecha_publicacion || !sinopsis || !tipo || !especialidad) {
       setAddError('Completa todos los campos obligatorios');
-      setAddLoading(false);
       return;
     }
     // Guardar libro en 'Libros'
@@ -214,8 +224,6 @@ const AdminBooksPage = () => {
       .select();
     if (errorLibro) {
       setAddError('Error al agregar libro: ' + (errorLibro.message || JSON.stringify(errorLibro)));
-      console.error('[ADMIN][ADD] Error al agregar libro:', errorLibro);
-      setAddLoading(false);
       return;
     }
     // Si hay PDF, guardar en 'libros_virtuales'
@@ -226,8 +234,6 @@ const AdminBooksPage = () => {
         .insert([{ libro_id, direccion_del_libro: url_pdf }]);
       if (errorVirtual) {
         setAddError('Libro guardado, pero error al guardar PDF en libros_virtuales: ' + (errorVirtual.message || JSON.stringify(errorVirtual)));
-        console.error('[ADMIN][ADD] Error al guardar PDF en libros_virtuales:', errorVirtual);
-        setAddLoading(false);
         return;
       }
     }
@@ -246,7 +252,6 @@ const AdminBooksPage = () => {
     }
     setShowForm(false);
     fetchLibros();
-    setAddLoading(false);
   };
 
   // Eliminar libro (solo si se confirma)
@@ -285,6 +290,14 @@ const AdminBooksPage = () => {
     }
     const especialidad = formData.get('especialidad')?.toString().trim() || '';
     const fecha_publicacion = formData.get('fecha_publicacion')?.toString() || '';
+    
+    // Manejar imagen de portada si se subió una nueva
+    const imagenPortadaFile = formData.get('imagen_portada') as File | null;
+    let nuevaUrlPortada = url_portada;
+    if (imagenPortadaFile && imagenPortadaFile.size > 0) {
+      nuevaUrlPortada = (await uploadImageToSupabase(imagenPortadaFile)) || url_portada;
+    }
+    
     if (!titulo || !sinopsis || !tipo || !especialidad || !fecha_publicacion) {
       setEditError('Completa todos los campos obligatorios');
       setEditLoading(false);
@@ -293,25 +306,23 @@ const AdminBooksPage = () => {
     // Intentar primero con 'tipo'
     let { error } = await supabase
       .from('Libros')
-      .update({ titulo, sinopsis, url_portada: url_portada || null, tipo, especialidad, fecha_publicacion })
+      .update({ titulo, sinopsis, url_portada: nuevaUrlPortada || null, tipo, especialidad, fecha_publicacion })
       .eq('id_libro', editLibro.id_libro);
     // Si da error por 'tipo', intenta con 'type'
-    if (error && error.message && error.message.includes('tipo')) {
+    if (error && (error as any).message && (error as any).message.includes('tipo')) {
       ({ error } = await supabase
         .from('Libros')
-        .update({ titulo, sinopsis, url_portada: url_portada || null, type: tipo, especialidad, fecha_publicacion })
+        .update({ titulo, sinopsis, url_portada: nuevaUrlPortada || null, type: tipo, especialidad, fecha_publicacion })
         .eq('id_libro', editLibro.id_libro));
     }
     // Si da error por 'especialidad', omite ese campo
-    if (error && error.message && error.message.includes('especialidad')) {
+    if (error && (error as any).message && (error as any).message.includes('especialidad')) {
       ({ error } = await supabase
         .from('Libros')
-        .update({ titulo, sinopsis, url_portada: url_portada || null, tipo, fecha_publicacion })
+        .update({ titulo, sinopsis, url_portada: nuevaUrlPortada || null, tipo, fecha_publicacion })
         .eq('id_libro', editLibro.id_libro));
     }
-    if (error) {
-      console.log('[ADMIN][EDIT] Error al actualizar libro:', error);
-    }
+
     if (error) {
       setEditError('Error al actualizar libro');
     } else {
@@ -334,6 +345,71 @@ const AdminBooksPage = () => {
         ], { onConflict: 'libro_id' });
     }
     setEditLoading(false);
+  };
+
+  // Función para extraer metadatos automáticamente del PDF
+  const handlePDFUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !file.type.includes('pdf')) return;
+
+    setIsExtractingMetadata(true);
+    setMetadataExtracted(false);
+    setValidationError(null);
+
+    try {
+      // Extraer metadatos del PDF
+      const metadata = await extractPDFMetadataSimple(file);
+      
+      // Obtener referencias a los campos del formulario
+      const tituloInput = document.querySelector('input[name="titulo"]') as HTMLInputElement;
+      
+      // Pequeño delay para asegurar que el DOM esté listo
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Llenar automáticamente los campos si están vacíos
+      if (tituloInput && !tituloInput.value && metadata.title) {
+        tituloInput.value = metadata.title;
+      }
+      
+      // Verificar si hay error de validación
+      if (metadata.validationError) {
+        setValidationError(metadata.validationError);
+        setMetadataExtracted(false);
+        return;
+      }
+      
+      // Detectar tipo de documento automáticamente
+      const detectedType = detectDocumentType('', metadata);
+      
+      if (detectedType === 'Tesis') {
+        setTipoTesis(true);
+        setTipoProyecto(false);
+        setTipoFisico(false);
+        setTipoVirtual(false);
+      } else if (detectedType === 'Proyecto de Investigacion') {
+        setTipoProyecto(true);
+        setTipoTesis(false);
+        setTipoFisico(false);
+        setTipoVirtual(false);
+      } else {
+        setTipoVirtual(true);
+        setTipoFisico(false);
+        setTipoTesis(false);
+        setTipoProyecto(false);
+      }
+      
+      setMetadataExtracted(true);
+      
+      // Mostrar notificación de éxito
+      setTimeout(() => {
+        setMetadataExtracted(false);
+      }, 3000);
+      
+    } catch (error) {
+      // Error silencioso para no mostrar en consola
+    } finally {
+      setIsExtractingMetadata(false);
+    }
   };
 
   return (
@@ -374,7 +450,7 @@ const AdminBooksPage = () => {
                 { value: 'Ingenieria Electronica', label: 'Ingeniería Electrónica' },
                 { value: 'Ingenieria Industrial', label: 'Ingeniería Industrial' },
                 { value: 'Ingenieria Electrica', label: 'Ingeniería Eléctrica' },
-                { value: 'Ingenieria en Sistemas', label: 'Ingeniería en Sistemas' },
+                { value: 'Ingenieria De Sistemas', label: 'Ingeniería De Sistemas' },
               ]
             }
           ]}
@@ -453,12 +529,37 @@ const AdminBooksPage = () => {
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:gap-4 items-center">
               <label className="block text-sm sm:text-base font-medium text-gray-700">Archivo PDF (opcional):</label>
-              <input 
-                type="file" 
-                name="url_pdf" 
-                accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/epub+zip" 
-                className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition bg-white flex-1 text-sm sm:text-base" 
-              />
+              <div className="flex flex-col gap-2 flex-1">
+                <input 
+                  type="file" 
+                  name="url_pdf" 
+                  accept="application/pdf" 
+                  onChange={handlePDFUpload}
+                  className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition bg-white text-sm sm:text-base" 
+                />
+                {isExtractingMetadata && (
+                  <div className="flex items-center gap-2 text-blue-600 text-sm">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                    Extrayendo metadatos del PDF...
+                  </div>
+                )}
+                {metadataExtracted && (
+                  <div className="flex items-center gap-2 text-green-600 text-sm">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    ¡Metadatos extraídos automáticamente!
+                  </div>
+                )}
+                {validationError && (
+                  <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 p-2 rounded border border-red-200">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    {validationError}
+                  </div>
+                )}
+              </div>
             </div>
             {/* Checkboxes para tipo de libro */}
             <div className="flex flex-col gap-2">
@@ -623,7 +724,7 @@ const AdminBooksPage = () => {
               <option value="Ingenieria Electronica">Ingenieria Electronica</option>
               <option value="Ingenieria Industrial">Ingenieria Industrial</option>
               <option value="Ingenieria Electrica">Ingenieria Electrica</option>
-              <option value="Ingenieria en Sistemas">Ingenieria en Sistemas</option>
+              <option value="Ingenieria De Sistemas">Ingenieria De Sistemas</option>
             </select>
             {addError && <p className="text-red-500 text-sm sm:text-base p-2 bg-red-50 rounded-lg">{addError}</p>}
             <button 
@@ -649,9 +750,16 @@ const AdminBooksPage = () => {
                   className="w-16 h-20 lg:w-20 lg:h-24 object-cover rounded mb-2 lg:mb-3"
                 />
               )}
-              <strong className="text-sm lg:text-base mb-2 truncate w-full text-center text-gray-800" title={libro.titulo}>
+              <strong className="text-sm lg:text-base mb-1 truncate w-full text-center text-gray-800" title={libro.titulo}>
                 {libro.titulo}
               </strong>
+              {/* Autor temporalmente oculto hasta que se agregue a la BD
+              {libro.autor && (
+                <p className="text-xs lg:text-sm text-gray-600 mb-2 truncate w-full text-center" title={libro.autor}>
+                  {libro.autor}
+                </p>
+              )}
+              */}
               {selectedLibroId === libro.id_libro && (
                 <div className="flex gap-1 lg:gap-2 mt-2 lg:mt-3">
                   <button
@@ -725,6 +833,16 @@ const AdminBooksPage = () => {
                   placeholder="Título" 
                   className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 w-full text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-400 transition" 
                 />
+                {/* Campo autor temporalmente deshabilitado hasta que se agregue a la BD
+                <label className="font-medium text-sm sm:text-base text-gray-700">Autor:</label>
+                <input 
+                  type="text" 
+                  name="autor" 
+                  defaultValue={editLibro.autor || ''} 
+                  placeholder="Autor del libro" 
+                  className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 w-full text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-400 transition" 
+                />
+                */}
                 <label className="font-medium text-sm sm:text-base text-gray-700">Sinopsis:</label>
                 <textarea 
                   name="sinopsis" 
@@ -741,6 +859,14 @@ const AdminBooksPage = () => {
                   placeholder="URL de la portada (opcional)" 
                   className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 w-full text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-400 transition" 
                 />
+                <label className="font-medium text-sm sm:text-base text-gray-700">Imagen de portada (opcional):</label>
+                <input 
+                  type="file" 
+                  name="imagen_portada" 
+                  accept="image/*" 
+                  className="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 w-full text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-400 transition" 
+                />
+                <p className="text-xs text-gray-500">Formatos: JPG, PNG, GIF. Máximo 5MB.</p>
                 <label className="font-medium text-sm sm:text-base text-gray-700">Fecha de publicación:</label>
                 <input 
                   type="date" 
@@ -893,7 +1019,7 @@ const AdminBooksPage = () => {
                   <option value="Ingenieria Electronica">Ingenieria Electronica</option>
                   <option value="Ingenieria Industrial">Ingenieria Industrial</option>
                   <option value="Ingenieria Electrica">Ingenieria Electrica</option>
-                  <option value="Ingenieria en Sistemas">Ingenieria en Sistemas</option>
+                  <option value="Ingenieria De Sistemas">Ingenieria De Sistemas</option>
                 </select>
                 {editError && <p className="text-red-500 text-sm sm:text-base p-2 bg-red-50 rounded-lg">{editError}</p>}
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-end mt-2">

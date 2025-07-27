@@ -1015,3 +1015,174 @@ El menú hamburguesa ahora proporciona una experiencia mucho mejor en dispositiv
 # =============================================
 # FIN DE CAMBIOS - 07/27/2025
 # =============================================
+
+# =============================================
+# IMPLEMENTACIÓN DE EXTRACCIÓN AUTOMÁTICA DE METADATOS DE PDF
+# Fecha: 07/27/2025
+# =============================================
+
+# 1. PROBLEMA IDENTIFICADO
+# - El usuario preguntó si era posible extraer automáticamente los datos del PDF
+# - Actualmente todos los campos se llenan manualmente en el formulario
+# - Esto consume mucho tiempo y puede generar errores de transcripción
+
+# 2. SOLUCIÓN IMPLEMENTADA
+# - Se instaló la biblioteca pdfjs-dist para leer PDFs
+# - Se creó el archivo src/utils/pdfMetadata.ts con funciones de extracción
+# - Se modificó AdminBooksPage.tsx para integrar la extracción automática
+# - Se agregaron indicadores visuales de progreso
+
+# 3. FUNCIONALIDADES IMPLEMENTADAS
+
+# 3.1 EXTRACCIÓN DE METADATOS
+# - Extrae título, autor, fecha de creación, etc. desde metadatos del PDF
+# - Lee el texto de la primera página para análisis adicional
+# - Maneja errores graciosamente si el PDF no tiene metadatos
+
+# 3.2 GENERACIÓN AUTOMÁTICA DE SINOPSIS
+# - Toma los primeros 500 caracteres del texto del PDF
+# - Limpia el texto de caracteres especiales
+# - Genera una sinopsis de máximo 200 caracteres
+# - Corta en una palabra completa para evitar cortes abruptos
+
+# 3.3 DETECCIÓN AUTOMÁTICA DEL TIPO
+# - Analiza el contenido del PDF y metadatos
+# - Busca palabras clave como "tesis", "proyecto", "investigación"
+# - Selecciona automáticamente: Tesis, Proyecto de Investigación, o Virtual
+
+# 4. INTERFAZ DE USUARIO MEJORADA
+# - Spinner azul: "Extrayendo metadatos del PDF..."
+# - Check verde: "¡Metadatos extraídos automáticamente!"
+# - Notificación temporal que desaparece después de 3 segundos
+# - Solo funciona con archivos PDF (no Word, EPUB, etc.)
+
+# 5. COMPORTAMIENTO INTELIGENTE
+# - Solo llena campos que están vacíos (no sobrescribe datos existentes)
+# - Mantiene la funcionalidad manual existente
+# - Permite al usuario revisar y modificar los datos extraídos
+
+# 6. ARCHIVOS CREADOS/MODIFICADOS
+# - src/utils/pdfMetadata.ts (versión original con pdfjs-dist)
+# - src/utils/pdfMetadataSimple.ts (versión simplificada - RECOMENDADA)
+# - src/utils/pdfMetadataAlternative.ts (versión con pdf-parse)
+# - src/utils/pdfMetadataFinal.ts (versión final sin dependencias)
+# - src/utils/pdfTestSimple.ts (función de prueba simplificada)
+# - src/pages/AdminBooksPage.tsx (integración en el formulario con debugging)
+# - EXTRACCION_METADATOS_PDF.md (documentación completa)
+
+# 7. DEPENDENCIAS AGREGADAS
+# - pdfjs-dist: Biblioteca para leer y analizar PDFs
+# - pdf-parse: Biblioteca alternativa para extracción de metadatos
+
+# 8. PROBLEMA DE CORS Y SOLUCIONES
+# - Problema: Error de CORS al cargar worker de PDF.js desde CDN externo
+# - Solución 1: Configuración de worker local (no funcionó completamente)
+# - Solución 2: Versión simplificada sin worker (pdfMetadataSimple.ts)
+# - Solución 3: Versión con pdf-parse (pdfMetadataAlternative.ts)
+# - Solución 4: Versión final sin dependencias externas (pdfMetadataFinal.ts) - RECOMENDADA
+# - Resultado: Funcionalidad completamente compatible sin problemas de CORS
+
+# 9. PALABRAS CLAVE PARA DETECCIÓN
+# - Tesis: "tesis", "thesis", "graduación", "graduation", "investigación", "research"
+# - Proyecto: "proyecto", "project", "investigación", "research", "estudio", "study"
+# - Virtual: Por defecto si no coincide con los patrones anteriores
+
+# 10. LIMITACIONES CONOCIDAS
+# - PDFs sin metadatos: Solo se extrae el texto
+# - PDFs escaneados: No funcionan con PDFs que son imágenes
+# - PDFs protegidos: No funcionan con PDFs con contraseña
+# - Tamaño: PDFs muy grandes pueden tardar más en procesarse
+
+# 11. BENEFICIOS OBTENIDOS
+# - Ahorro significativo de tiempo al llenar formularios
+# - Consistencia en los datos extraídos directamente del documento
+# - Precisión mejorada al reducir errores de transcripción manual
+# - Experiencia de usuario más fluida para el administrador
+
+# ✅ FUNCIONALIDADES IMPLEMENTADAS (VERSIÓN AVANZADA):
+# - Extracción automática de título desde metadatos del PDF
+# - Extracción de autor desde el nombre del archivo (más confiable)
+# - Sistema de extracción avanzada con 8 patrones diferentes
+# - Niveles de confianza para cada extracción (0-100%)
+# - Validación adaptativa según nivel de confianza
+# - Formateo automático de nombres (mayúsculas/minúsculas)
+# - Detección automática del tipo de documento (Tesis/Proyecto/Virtual)
+# - Interfaz visual con indicadores de progreso
+# - Comportamiento inteligente que no sobrescribe datos existentes
+# - Sin extracción de texto del PDF (evita caracteres extraños)
+# - Sistema de validación completo con 10 validaciones diferentes
+# - Mensajes de error específicos y solicitud de entrada manual
+# - Intento de corrección automática antes de mostrar error
+# - Extracción inteligente para casos sin patrón claro
+# - Función de prueba para debugging
+# - Documentación completa de la funcionalidad
+
+# ✅ FLUJO DE TRABAJO (VERSIÓN SIMPLIFICADA):
+# 1. Usuario selecciona archivo PDF
+# 2. Sistema extrae título desde metadatos del PDF
+# 3. Sistema extrae autor desde el nombre del archivo
+# 4. Se llenan automáticamente los campos vacíos
+# 5. Se detecta y selecciona el tipo de documento
+# 6. Se muestra confirmación de éxito
+# 7. Usuario puede revisar y modificar los datos
+# 8. Usuario guarda el libro con todos los datos
+
+# ✅ PATRONES DE NOMBRE DE ARCHIVO RECONOCIDOS:
+# - "Juan Pérez - Tesis de Ingeniería.pdf" → Autor: "Juan Pérez"
+# - "María García_Tesis de Sistemas.pdf" → Autor: "María García"
+# - "Tesis - Ana Rodríguez.pdf" → Autor: "Ana Rodríguez"
+# - "Carlos López.pdf" → Autor: "Carlos López"
+# - "java2 Jorge Sanchez.pdf" → Autor: "Jorge Sanchez", Título: "java2"
+# - "proyecto Juan Pérez.pdf" → Autor: "Juan Pérez", Título: "proyecto"
+# - "10. Java2 autor Jorge Sánchez.pdf" → Autor: "Jorge Sánchez", Título: "10. Java2"
+# - "Java2 autor Jorge Sánchez.pdf" → Autor: "Jorge Sánchez", Título: "Java2"
+
+# 🔧 CORRECCIÓN IMPLEMENTADA:
+# - Problema: Solo extraía "Sánchez" en lugar de "Jorge Sánchez"
+# - Solución: Nueva función extractAuthorFromComplexName que busca nombres completos
+# - Mejora: Detecta patrones de "Título Autor" y extrae correctamente ambos
+# - Validación: Ignora títulos de PDF que contienen ".doc" o ".pdf"
+
+# 🔧 SEGUNDA CORRECCIÓN IMPLEMENTADA:
+# - Problema: "10. Java2 autor Jorge Sánchez" se interpretaba incorrectamente
+# - Solución: Nueva función extractAuthorFromComplexPattern que detecta la palabra "autor"
+# - Mejora: Identifica correctamente el título antes de "autor" y el autor después
+# - Patrones: "Título autor Autor" → Título: "Título", Autor: "Autor"
+
+# 🔧 TERCERA CORRECCIÓN IMPLEMENTADA:
+# - Problema: Los datos extraídos se dividían incorrectamente (título en autor y viceversa)
+# - Solución: Sistema de validación completo con 10 validaciones diferentes
+# - Mejora: Verifica que los datos extraídos sean razonables antes de llenarlos
+# - Comportamiento: Si hay error, muestra mensaje y solicita entrada manual
+# - Validaciones: Título no contiene "autor", autor completo, longitudes, etc.
+
+# 🔧 CUARTA MEJORA IMPLEMENTADA:
+# - Problema: Algunos libros no se detectaban correctamente
+# - Solución: Sistema de extracción avanzada con 8 patrones diferentes y niveles de confianza
+# - Mejora: Detecta más casos y asigna nivel de confianza a cada extracción
+# - Validación adaptativa: Más permisiva con alta confianza, más estricta con baja confianza
+# - Patrones: "Título autor Autor", "Autor - Título", "Tesis - Autor", etc.
+
+# 🔧 QUINTA MEJORA IMPLEMENTADA:
+# - Problema: Formulario de edición no tenía campos de autor e imagen de portada
+# - Solución: Agregados campos de autor e imagen de portada al formulario de edición
+# - Mejora: Permite editar autor y subir nueva imagen de portada
+# - Funcionalidades: Subida automática de imágenes, búsqueda por autor, visualización mejorada
+# - Compatibilidad: Campos opcionales, no afecta libros existentes
+
+# 🔧 SEXTA CORRECCIÓN CRÍTICA:
+# - Problema: Sistema no mostraba libros ni datos del reporte por error de conexión
+# - Causa: Campo 'autor' no existe en la tabla Libros de la base de datos
+# - Solución: Eliminado campo autor de todas las consultas, implementado sistema de fallback
+# - Resultado: Sistema funcional, libros se cargan correctamente, conexión estable
+# - Estado: Campo autor temporalmente deshabilitado hasta que se agregue a la BD
+
+# 🔧 SÉPTIMA ACTUALIZACIÓN COMPLETA:
+# - Cambio: "Ingeniería en Sistemas" → "Ingeniería De Sistemas" en todo el sistema
+# - Archivos actualizados: AdminBooksPage, Brands, RegisterPage, BookPages, TesisPages, helpers
+# - Cobertura: Formularios, filtros, registro, navegación, valores por defecto
+# - Resultado: Cambio consistente en toda la aplicación
+
+# =============================================
+# FIN DE LA IMPLEMENTACIÓN DE EXTRACCIÓN AUTOMÁTICA DE METADATOS
+# =============================================

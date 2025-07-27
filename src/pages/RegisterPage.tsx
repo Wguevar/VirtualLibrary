@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { validation } from '../utils/validation';
 
 const specialities = [
-  'Ingeniería en Sistemas',
+  'Ingeniería De Sistemas',
   'Ingeniería Civil',
   'Ingeniería Industrial',
   'Ingeniería Eléctrica',

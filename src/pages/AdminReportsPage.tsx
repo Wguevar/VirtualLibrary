@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../supabase/client';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -7,44 +7,7 @@ import { useOutletContext } from 'react-router-dom';
 
 
 
-// Hook para obtener y desbloquear usuarios morosos
-function useMorosos() {
-  const [morosos, setMorosos] = useState<any[]>([]);
-  const [loadingMorosos, setLoadingMorosos] = useState(true);
-  const [errorMorosos, setErrorMorosos] = useState<string | null>(null);
 
-  const fetchMorosos = async () => {
-    setLoadingMorosos(true);
-    setErrorMorosos(null);
-    const { data, error } = await supabase
-      .from('usuarios')
-      .select('id, nombre, correo, estado')
-      .eq('estado', 'Moroso');
-    if (error) {
-      setErrorMorosos('Error al obtener usuarios morosos');
-      setMorosos([]);
-    } else {
-      setMorosos(data || []);
-    }
-    setLoadingMorosos(false);
-  };
-
-  const desbloquearUsuario = async (id: number) => {
-    const { error } = await supabase
-      .from('usuarios')
-      .update({ estado: 'Activo' })
-      .eq('id', id);
-    if (!error) {
-      setMorosos(prev => prev.filter(u => u.id !== id));
-    }
-  };
-
-  useEffect(() => {
-    fetchMorosos();
-  }, []);
-
-  return { morosos, loadingMorosos, errorMorosos, desbloquearUsuario, fetchMorosos };
-}
 
 // Utilidades visuales para badges e iconos
 const estadoBadge = {
@@ -83,30 +46,22 @@ const AdminReportsPage = () => {
     const checkVencimientos = async () => {
       try {
         // Ejecutar verificación de vencimientos usando SQL directo
-        const { error } = await supabase
+        await supabase
           .from('ordenes')
           .update({ estado: 'Cancelado' })
           .eq('estado', 'Pendiente de buscar')
           .lt('fecha_limite_busqueda', new Date().toISOString());
           
-        if (error) {
-          console.error('Error al verificar vencimientos de búsqueda:', error);
-        } else {
-          console.log('Vencimientos de búsqueda verificados');
-        }
+
         
         // Verificar vencimientos de devolución y marcar como moroso
-        const { error: errorDevolucion } = await supabase
+        await supabase
           .from('ordenes')
           .update({ estado: 'Moroso' })
           .eq('estado', 'Prestado')
           .lt('fecha_limite_devolucion', new Date().toISOString());
           
-        if (errorDevolucion) {
-          console.error('Error al verificar vencimientos de devolución:', errorDevolucion);
-        } else {
-          console.log('Vencimientos de devolución verificados');
-        }
+
 
         // Actualizar estado de usuarios que tienen órdenes morosas
         const { data: ordenesMorosas, error: errorUsuarios } = await supabase
@@ -114,32 +69,17 @@ const AdminReportsPage = () => {
           .select('usuario_id')
           .eq('estado', 'Moroso');
 
-        console.log('🔍 Verificando órdenes morosas:', ordenesMorosas);
-        console.log('❌ Error al obtener órdenes morosas:', errorUsuarios);
-
         if (!errorUsuarios && ordenesMorosas) {
           // Obtener IDs únicos de usuarios con órdenes morosas (filtrar nulls)
           const usuariosMorosos = [...new Set(ordenesMorosas.map(o => o.usuario_id).filter(id => id !== null))];
           
-          console.log('👥 Usuarios que deberían estar morosos:', usuariosMorosos);
-          
           if (usuariosMorosos.length > 0) {
             // Marcar usuarios como morosos
-            const { error: errorUpdateUsuarios } = await supabase
+            await supabase
               .from('usuarios')
               .update({ estado: 'Moroso' })
               .in('id', usuariosMorosos);
-              
-            if (errorUpdateUsuarios) {
-              console.error('❌ Error al actualizar estado de usuarios morosos:', errorUpdateUsuarios);
-            } else {
-              console.log('✅ Usuarios marcados como morosos:', usuariosMorosos);
-            }
-          } else {
-            console.log('ℹ️ No hay usuarios para marcar como morosos');
           }
-        } else {
-          console.log('ℹ️ No se encontraron órdenes morosas o hubo error');
         }
 
         // También verificar usuarios que ya no tienen órdenes morosas y desbloquearlos
@@ -159,22 +99,17 @@ const AdminReportsPage = () => {
 
             if (!errorOrdenes && (!ordenesDelUsuario || ordenesDelUsuario.length === 0)) {
               // El usuario no tiene órdenes morosas, desbloquearlo
-              const { error: errorDesbloquear } = await supabase
+              await supabase
                 .from('usuarios')
                 .update({ estado: 'Activo' })
                 .eq('id', usuario.id);
 
-              if (errorDesbloquear) {
-                console.error('Error al desbloquear usuario:', errorDesbloquear);
-              } else {
-                console.log('Usuario desbloqueado:', usuario.id);
-              }
+
             }
           }
         }
-        
       } catch (error) {
-        console.error('Error al ejecutar verificación de vencimientos:', error);
+        // Error silencioso
       }
     };
 
@@ -187,7 +122,6 @@ const AdminReportsPage = () => {
         .select('id, libro_id, usuario_id, estado, fecha_reserva, fecha_entrega, fecha_devolucion, fecha_limite_busqueda, fecha_limite_devolucion, Libros(titulo), usuarios(correo, nombre)')
         .order('fecha_reserva', { ascending: false });
       if (error) {
-        console.error('Error Supabase:', error);
         setError('Error al obtener órdenes');
         setOrdenes([]);
       } else {
@@ -332,7 +266,7 @@ const AdminReportsPage = () => {
   );
 
   // Obtener funciones del layout para actualizar notificaciones
-  const { handleMorosoDesbloqueado, handlePedidoRespondido } = useOutletContext<any>() || {};
+  const { handlePedidoRespondido } = useOutletContext<any>() || {};
 
   // Función para ejecutar verificación manual de vencimientos
   const ejecutarVerificacionManual = async () => {

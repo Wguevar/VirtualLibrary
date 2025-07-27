@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { PreparedBook } from '../interfaces';
-import { useNavigate } from 'react-router-dom';
+
 import { useLocation } from 'react-router-dom';
 import { CardBook } from '../components/products/CardBook';
 import { ContainerFilter } from '../components/products/ContainerFilter';
@@ -18,7 +18,7 @@ import { ScrollToTop } from '../components/shared/ScrollToTop';
 
 export const BookPages = () => {
   const { isAuthenticated, isConfigured, user } = useAuth();
-  const navigate = useNavigate();
+
   const location = useLocation();
 
   const [books, setBooks] = useState<PreparedBook[]>([]);
@@ -29,7 +29,7 @@ export const BookPages = () => {
   const [selectedSpecialities, setSelectedSpecialities] = useState<string[]>([]);
   // Controlar si la selección de especialidad fue hecha por el usuario
   const [userChangedSpeciality, setUserChangedSpeciality] = useState(false);
-  const [showPdf, setShowPdf] = useState(false);
+
 
   const [reservationMessage, setReservationMessage] = useState<string | null>(null);
   const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
@@ -79,19 +79,7 @@ export const BookPages = () => {
     loadUserActiveOrders();
   }, [isAuthenticated, user]);
 
-  useEffect(() => {
-    // Mostrar en consola los dos arreglos filtrados
-    const librosFisicosVirtuales = books.filter(
-      book => book.type === 'Físico' || book.type === 'Virtual'
-    );
-    const librosTesisOtros = books.filter(
-      book =>
-        book.type === 'Tesis' ||
-        book.type === 'Servicio Comunitario' ||
-        book.type === 'Pasantía' ||
-        book.type === 'Pasantias'
-    );
-  }, [books]);
+
 
   useEffect(() => {
     // Si hay un parámetro 'carrera' en la URL y el usuario no ha cambiado el filtro manualmente, seleccionarlo automáticamente
@@ -112,12 +100,11 @@ export const BookPages = () => {
     setUserChangedSpeciality(true);
   };
 
-  // Generar lista dinámica de especialidades únicas a partir de los libros cargados
-  const specialities = Array.from(new Set(books.map(book => book.speciality).filter(Boolean)));
+
 
   // Lista fija de especialidades para los filtros
   const specialitiesForFilterBase = [
-    'Ingeniería en Sistemas',
+    'Ingeniería De Sistemas',
     'Ingeniería Civil',
     'Ingeniería en Mantenimiento Mecánico',
     'Ingeniería Electrónica',
@@ -205,25 +192,14 @@ export const BookPages = () => {
   }
 
   // Handler para ver detalles
-  const handleViewDetails = (book: PreparedBook) => {
-    console.log('🔍 Abriendo modal para libro:', book.title);
-    console.log('📄 URL del PDF:', book.fileUrl);
-    setSelectedBook(book);
-    setIsModalOpen(true);
-  };
+
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedBook(null);
   };
 
-  // Handler para descarga
-  const handleDownload = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-    if (!isAuthenticated) {
-      e.preventDefault();
-      navigate('/login');
-    }
-  };
+
 
   // Handler para reservar libro físico
   const handleReserve = (book: PreparedBook) => {
@@ -241,24 +217,7 @@ export const BookPages = () => {
     setIsReservationModalOpen(true);
   };
 
-  // Función para verificar si el usuario ya tiene una orden activa para un libro
-  const checkUserHasActiveOrder = async (libroId: number): Promise<boolean> => {
-    if (!user) return false;
-    
-    try {
-      const { data: ordenesActivas } = await supabase
-        .from('ordenes')
-        .select('id, estado')
-        .eq('usuario_id', user.id)
-        .eq('libro_id', libroId)
-        .in('estado', ['Pendiente de buscar', 'Prestado', 'Moroso']);
-      
-      return Boolean(ordenesActivas && ordenesActivas.length > 0);
-    } catch (error) {
-      console.error('Error al verificar órdenes activas:', error);
-      return false;
-    }
-  };
+
 
   const handleConfirmReservation = async () => {
     if (!selectedBookForReservation || !user) return;
@@ -364,8 +323,6 @@ export const BookPages = () => {
                         if (!isAuthenticated) {
                           return; // No abrir modal si no está autenticado
                         }
-                        console.log('🔍 Abriendo modal desde CardBook:', book.title);
-                        console.log('📄 URL del PDF:', book.fileUrl);
                         setSelectedBook(book);
                         setIsModalOpen(true);
                       }}

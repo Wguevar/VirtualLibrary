@@ -17,29 +17,23 @@ export const PDFViewer = ({ fileUrl, onlyFirstPage = false, isAuthenticated = fa
   const [pageNumber, setPageNumber] = useState<number>(1);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  console.log('🚀 PDFViewer iniciado con URL:', fileUrl);
-
   // Resetear estado cuando cambia la URL
   useEffect(() => {
-    console.log('🔄 PDFViewer: URL cambiada, reseteando estado');
     setNumPages(1);
     setPageNumber(1);
   }, [fileUrl]);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
-    console.log('✅ PDF cargado exitosamente:', numPages, 'páginas');
     setNumPages(numPages);
     setPageNumber(1);
   };
 
-  const onDocumentLoadError = (error: Error) => {
-    console.error('❌ Error al cargar PDF:', error);
+  const onDocumentLoadError = () => {
+    // Error silencioso
   };
 
   const goToPrevPage = () => setPageNumber(prev => Math.max(prev - 1, 1));
   const goToNextPage = () => setPageNumber(prev => Math.min(prev + 1, numPages));
-
-  console.log('📊 PDFViewer estado actual:', { fileUrl });
 
   // Memoizar las opciones para evitar re-renders innecesarios
   const pdfOptions = useMemo(() => ({
@@ -107,7 +101,6 @@ export const PDFViewer = ({ fileUrl, onlyFirstPage = false, isAuthenticated = fa
         {/* PDF renderizado - Mostrar siempre si hay URL */}
         {fileUrl && (
           <>
-            {console.log('📄 PDFViewer: Renderizando Document con URL:', fileUrl)}
             <Document
               file={fileUrl}
               onLoadSuccess={onDocumentLoadSuccess}

@@ -35,7 +35,7 @@ export const TesisPages = () => {
 
   // Lista de especialidades para el filtro de carreras
   const especialidadesForFilter = [
-    'Ingeniería en Sistemas',
+    'Ingeniería De Sistemas',
     'Ingeniería Civil',
     'Ingeniería en Mantenimiento Mecánico',
     'Ingeniería Electrónica',
@@ -53,9 +53,6 @@ export const TesisPages = () => {
       .trim();
   }
 
-  // Log para ver los tipos normalizados
-  console.log('Tipos normalizados:', books.map(b => b.type && normalize(b.type)));
-
   // También elimina la opción 'Pasantía' y 'Pasantias' de los filtros de libros
   let filteredBooks = books.filter(
     book =>
@@ -65,19 +62,12 @@ export const TesisPages = () => {
 
   // Filtrar por tipo seleccionado (igual que BookPages pero usando type)
   if (selectedSpecialities.length > 0) {
-    console.log('selectedSpecialities:', selectedSpecialities);
-    console.log('Book types:', filteredBooks.map(b => b.type));
     filteredBooks = filteredBooks.filter(book => {
       const result = selectedSpecialities.some(sel =>
         book.type && normalize(sel) === normalize(book.type)
       );
-      console.log(
-        `Comparando: filtro "${selectedSpecialities[0]}" con libro "${book.title}" (type: "${book.type}") =>`,
-        result
-      );
       return result;
     });
-    console.log('Libros mostrados tras filtrar:', filteredBooks.map(b => ({ title: b.title, type: b.type })));
   }
 
   // Filtrar por especialidad seleccionada

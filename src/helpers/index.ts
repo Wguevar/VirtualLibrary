@@ -7,6 +7,7 @@ export const prepareBooks = (rawBooks: unknown[]): PreparedBook[] => {
 			id: b.id,
 			title: b.title,
 			author: b.author,
+			authors: b.authors ?? b.author ?? '', // Campo requerido por la interfaz
 			slug: b.slug,
 			features: b.features ?? [],
 			description: b.description,
@@ -16,7 +17,7 @@ export const prepareBooks = (rawBooks: unknown[]): PreparedBook[] => {
 
 			// Nuevos campos:
 			type: b.type ?? 'Físico', // valor por defecto si falta
-			speciality: b.speciality ?? 'Ingeniería en Sistemas', // valor por defecto si falta
+			speciality: b.speciality ?? 'Ingeniería De Sistemas', // valor por defecto si falta
 			fragment: b.fragment, // <-- Agregado para que el fragmento llegue al modal
 		};
 	});

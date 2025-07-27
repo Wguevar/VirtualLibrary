@@ -2,7 +2,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { RootLayout } from '../layouts/RootLayout';
 import { HomePage, BookPages, TesisPages } from '../pages';
-import { TesisBook } from '../interfaces';
+
 import { LoginPage } from '../pages/LoginPage';
 import { RegisterPage } from '../pages/RegisterPage';
 import AdminLayout from '../pages/AdminDashboard';

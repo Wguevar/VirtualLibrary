@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { useState } from 'react';
 
 interface Props {
@@ -19,20 +19,12 @@ interface Props {
 	isAuthenticated?: boolean; // Si el usuario está autenticado
 }
 
-export const CardBook = ({ img, title, authors, slug, speciality, type, fragment, fileUrl, onViewDetails, onShowDetails, onReserve, cantidadDisponible, hasActiveOrder = false, isAuthenticated = false }: Props) => {
+export const CardBook = ({ img, title, speciality, type, fragment, fileUrl, onViewDetails, onReserve, cantidadDisponible, hasActiveOrder = false, isAuthenticated = false }: Props) => {
 	const [showNoPdf, setShowNoPdf] = useState(false);
 	const [showAuthMessage, setShowAuthMessage] = useState(false);
 	let hideTimeout: NodeJS.Timeout;
 
-	// Función para normalizar el tipo
-	function normalizeType(str: string) {
-		return (str || '')
-			.toLowerCase()
-			.normalize('NFD')
-			.replace(/[\u0300-\u036f]/g, '') // Elimina tildes correctamente
-			.replace(/\s+/g, '') // Elimina espacios
-			.trim();
-	}
+
 
 	const isFisico = type === 'Fisico' || type === 'Físico';
 	const noDisponibles = isFisico && (cantidadDisponible === 0 || cantidadDisponible === undefined || cantidadDisponible < 0);

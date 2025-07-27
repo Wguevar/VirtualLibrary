@@ -21,8 +21,6 @@ export const BookGrid = ({ title, books, noBooksMessage }: Props) => {
 		if (!isAuthenticated) {
 			return; // No abrir modal si no está autenticado
 		}
-		console.log('🔍 Abriendo modal desde HomePage:', book.title);
-		console.log('📄 URL del PDF:', book.fileUrl);
 		setSelectedBook(book);
 		setIsModalOpen(true);
 	};

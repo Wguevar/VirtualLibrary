@@ -18,8 +18,8 @@ const brands = [
   },
   {
     image: '/img/brands/programming-monitor-svgrepo-com.svg',
-    alt: 'Ingeniería en Sistemas',
-    label: 'Ingenieria en Sistemas',
+    alt: 'Ingeniería De Sistemas',
+    label: 'Ingenieria De Sistemas',
   },
   {
     image: '/img/brands/tech-circuit-svgrepo-com.svg',

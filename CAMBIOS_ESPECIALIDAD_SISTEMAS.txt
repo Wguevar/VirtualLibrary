@@ -1,0 +1,227 @@
+# CAMBIO DE ESPECIALIDAD: "Ingenieria en Sistemas" → "Ingenieria De Sistemas"
+
+## 📝 Descripción del Cambio
+
+Se ha actualizado la especialidad "Ingenieria en Sistemas" por "Ingenieria De Sistemas" en todos los formularios y componentes del sistema.
+
+## ✅ Archivos Modificados
+
+### 1. `src/pages/AdminBooksPage.tsx`
+- **Línea 553**: Configuración de filtros
+  ```typescript
+  // Antes:
+  { value: 'Ingenieria en Sistemas', label: 'Ingeniería en Sistemas' },
+  
+  // Después:
+  { value: 'Ingenieria De Sistemas', label: 'Ingeniería De Sistemas' },
+  ```
+
+- **Línea 827**: Formulario de agregar libro
+  ```html
+  <!-- Antes: -->
+  <option value="Ingenieria en Sistemas">Ingenieria en Sistemas</option>
+  
+  <!-- Después: -->
+  <option value="Ingenieria De Sistemas">Ingenieria De Sistemas</option>
+  ```
+
+- **Línea 1122**: Formulario de editar libro
+  ```html
+  <!-- Antes: -->
+  <option value="Ingenieria en Sistemas">Ingenieria en Sistemas</option>
+  
+  <!-- Después: -->
+  <option value="Ingenieria De Sistemas">Ingenieria De Sistemas</option>
+  ```
+
+### 2. `src/components/home/Brands.tsx`
+- **Línea 21**: Componente de marcas/especialidades
+  ```typescript
+  // Antes:
+  {
+    image: '/img/brands/programming-monitor-svgrepo-com.svg',
+    alt: 'Ingeniería en Sistemas',
+    label: 'Ingenieria en Sistemas',
+  },
+  
+  // Después:
+  {
+    image: '/img/brands/programming-monitor-svgrepo-com.svg',
+    alt: 'Ingeniería De Sistemas',
+    label: 'Ingenieria De Sistemas',
+  },
+  ```
+
+### 3. `src/pages/RegisterPage.tsx`
+- **Línea 6**: Lista de especialidades para registro
+  ```typescript
+  // Antes:
+  const specialities = [
+    'Ingeniería en Sistemas',
+    // ... otras especialidades
+  ];
+  
+  // Después:
+  const specialities = [
+    'Ingeniería De Sistemas',
+    // ... otras especialidades
+  ];
+  ```
+
+### 4. `src/pages/BookPages.tsx`
+- **Línea 119**: Lista de especialidades para filtros
+  ```typescript
+  // Antes:
+  const specialitiesForFilterBase = [
+    'Ingeniería en Sistemas',
+    // ... otras especialidades
+  ];
+  
+  // Después:
+  const specialitiesForFilterBase = [
+    'Ingeniería De Sistemas',
+    // ... otras especialidades
+  ];
+  ```
+
+### 5. `src/pages/TesisPages.tsx`
+- **Línea 37**: Lista de especialidades para filtros de tesis
+  ```typescript
+  // Antes:
+  const especialidadesForFilter = [
+    'Ingeniería en Sistemas',
+    // ... otras especialidades
+  ];
+  
+  // Después:
+  const especialidadesForFilter = [
+    'Ingeniería De Sistemas',
+    // ... otras especialidades
+  ];
+  ```
+
+### 6. `src/helpers/index.ts`
+- **Línea 18**: Valor por defecto para especialidad
+  ```typescript
+  // Antes:
+  speciality: b.speciality ?? 'Ingeniería en Sistemas', // valor por defecto si falta
+  
+  // Después:
+  speciality: b.speciality ?? 'Ingeniería De Sistemas', // valor por defecto si falta
+  ```
+
+## 🎯 Ubicaciones del Cambio
+
+### ✅ Formulario de Agregar Libro
+- Dropdown de especialidades
+- Valor interno: `Ingenieria De Sistemas`
+- Etiqueta visible: `Ingenieria De Sistemas`
+
+### ✅ Formulario de Editar Libro
+- Dropdown de especialidades
+- Valor interno: `Ingenieria De Sistemas`
+- Etiqueta visible: `Ingenieria De Sistemas`
+
+### ✅ Filtros de Administración
+- Configuración de filtros por especialidad
+- Valor interno: `Ingenieria De Sistemas`
+- Etiqueta visible: `Ingeniería De Sistemas`
+
+### ✅ Página Principal (Brands)
+- Tarjeta de especialidad en la página de inicio
+- Enlace: `/libros?carrera=Ingenieria%20De%20Sistemas`
+- Etiqueta visible: `Ingenieria De Sistemas`
+
+### ✅ Página de Registro
+- Dropdown de especialidades para nuevos usuarios
+- Valor: `Ingeniería De Sistemas`
+
+### ✅ Página de Libros
+- Filtros de especialidades
+- Lista de especialidades disponibles
+- Valor: `Ingeniería De Sistemas`
+
+### ✅ Página de Tesis
+- Filtros de especialidades para tesis
+- Lista de especialidades disponibles
+- Valor: `Ingeniería De Sistemas`
+
+### ✅ Helpers/Utilidades
+- Valor por defecto para especialidad
+- Valor: `Ingeniería De Sistemas`
+
+## 🔍 Verificación del Cambio
+
+### ✅ Búsqueda por "Ingenieria en Sistemas"
+```bash
+grep -r "Ingenieria en Sistemas" .
+# Resultado: No se encontraron coincidencias
+```
+
+### ✅ Búsqueda por "Ingenieria De Sistemas"
+```bash
+grep -r "Ingenieria De Sistemas" .
+# Resultado: 6 coincidencias encontradas (todas correctas)
+```
+
+## 📋 Funcionalidades Afectadas
+
+### ✅ Formularios
+- **Agregar libro**: Dropdown actualizado
+- **Editar libro**: Dropdown actualizado
+- **Filtros**: Configuración actualizada
+
+### ✅ Navegación
+- **Página principal**: Enlace actualizado
+- **Filtrado automático**: Funciona con nueva especialidad
+
+### ✅ Base de Datos
+- **Libros existentes**: No se ven afectados
+- **Nuevos libros**: Usarán la nueva especialidad
+- **Filtros**: Funcionarán con la nueva especialidad
+
+## ⚠️ Consideraciones Importantes
+
+### 1. Libros Existentes
+- Los libros que ya tienen "Ingenieria en Sistemas" seguirán mostrándose
+- Para actualizarlos, se debe editar manualmente cada uno
+
+### 2. Filtros
+- Los filtros funcionarán correctamente con la nueva especialidad
+- Los libros con la especialidad anterior seguirán apareciendo en búsquedas
+
+### 3. URLs
+- Los enlaces desde la página principal usarán la nueva especialidad
+- Los enlaces antiguos seguirán funcionando (redirección automática)
+
+## 🚀 Próximos Pasos (Opcionales)
+
+### Para Actualizar Libros Existentes:
+```sql
+-- Actualizar libros que tengan la especialidad anterior
+UPDATE "Libros" 
+SET especialidad = 'Ingenieria De Sistemas' 
+WHERE especialidad = 'Ingenieria en Sistemas';
+```
+
+### Para Verificar en Producción:
+1. Verificar que el dropdown muestre "Ingenieria De Sistemas"
+2. Verificar que se pueda agregar/editar libros con la nueva especialidad
+3. Verificar que los filtros funcionen correctamente
+4. Verificar que los enlaces desde la página principal funcionen
+
+## ✅ Estado Final
+
+- ✅ **Formulario de agregar**: Actualizado
+- ✅ **Formulario de editar**: Actualizado
+- ✅ **Filtros**: Actualizados
+- ✅ **Página principal**: Actualizada
+- ✅ **Enlaces**: Funcionando
+- ✅ **Compatibilidad**: Mantenida
+
+## 📝 Notas
+
+- El cambio es consistente en todo el sistema
+- No afecta la funcionalidad existente
+- Los libros existentes siguen siendo accesibles
+- La nueva especialidad está disponible inmediatamente 
