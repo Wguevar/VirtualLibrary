@@ -35,7 +35,7 @@ export const TesisPages = () => {
 
   // Lista de especialidades para el filtro de carreras
   const especialidadesForFilter = [
-    'Ingeniería De Sistemas',
+    'Ingeniería en Sistemas',
     'Ingeniería Civil',
     'Ingeniería en Mantenimiento Mecánico',
     'Ingeniería Electrónica',

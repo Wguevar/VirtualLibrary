@@ -17,6 +17,7 @@ export interface PreparedBook {
 	fragment?: string; // Fragmento de la primera página
 	fileUrl?: string; // URL del archivo para descargar
 	cantidadDisponible?: number; // Cantidad de ejemplares físicos disponibles
+	sinopsis?: string; // Sinopsis del libro
 }
 
 export interface TesisBook extends PreparedBook {

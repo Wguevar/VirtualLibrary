@@ -17,8 +17,11 @@ export const prepareBooks = (rawBooks: unknown[]): PreparedBook[] => {
 
 			// Nuevos campos:
 			type: b.type ?? 'Físico', // valor por defecto si falta
-			speciality: b.speciality ?? 'Ingeniería De Sistemas', // valor por defecto si falta
+			speciality: b.speciality ?? 'Ingeniería en Sistemas', // valor por defecto si falta
 			fragment: b.fragment, // <-- Agregado para que el fragmento llegue al modal
+			fileUrl: b.fileUrl,
+			sinopsis: b.sinopsis,
+			cantidadDisponible: b.cantidadDisponible,
 		};
 	});
 };

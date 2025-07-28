@@ -65,9 +65,7 @@ export const fetchBooks = async () => {
     // Obtener cantidad disponible de libros físicos (si aplica)
     let cantidadDisponible = undefined;
     
-    if (book.tipo === 'Físico' && book.libros_fisicos && book.libros_fisicos.length > 0) {
-      cantidadDisponible = book.libros_fisicos[0].cantidad;
-    } else if (book.tipo === 'Fisico' && book.libros_fisicos && book.libros_fisicos.length > 0) {
+    if ((book.tipo === 'Físico' || book.tipo === 'Fisico' || book.tipo === 'Fisico y Virtual') && book.libros_fisicos && book.libros_fisicos.length > 0) {
       cantidadDisponible = book.libros_fisicos[0].cantidad;
     }
     const mappedBook = {

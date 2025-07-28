@@ -460,7 +460,7 @@ const AdminBooksPage = () => {
                 { value: 'Ingenieria Electronica', label: 'Ingeniería Electrónica' },
                 { value: 'Ingenieria Industrial', label: 'Ingeniería Industrial' },
                 { value: 'Ingenieria Electrica', label: 'Ingeniería Eléctrica' },
-                { value: 'Ingenieria De Sistemas', label: 'Ingeniería De Sistemas' },
+                { value: 'Ingenieria en Sistemas', label: 'Ingeniería en Sistemas' },
               ]
             }
           ]}
@@ -734,7 +734,7 @@ const AdminBooksPage = () => {
               <option value="Ingenieria Electronica">Ingenieria Electronica</option>
               <option value="Ingenieria Industrial">Ingenieria Industrial</option>
               <option value="Ingenieria Electrica">Ingenieria Electrica</option>
-              <option value="Ingenieria De Sistemas">Ingenieria De Sistemas</option>
+              <option value="Ingenieria en Sistemas">Ingenieria en Sistemas</option>
             </select>
             {addError && <p className="text-red-500 text-sm sm:text-base p-2 bg-red-50 rounded-lg">{addError}</p>}
             <button 
@@ -1029,7 +1029,7 @@ const AdminBooksPage = () => {
                   <option value="Ingenieria Electronica">Ingenieria Electronica</option>
                   <option value="Ingenieria Industrial">Ingenieria Industrial</option>
                   <option value="Ingenieria Electrica">Ingenieria Electrica</option>
-                  <option value="Ingenieria De Sistemas">Ingenieria De Sistemas</option>
+                  <option value="Ingenieria en Sistemas">Ingenieria en Sistemas</option>
                 </select>
                 {editError && <p className="text-red-500 text-sm sm:text-base p-2 bg-red-50 rounded-lg">{editError}</p>}
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-end mt-2">

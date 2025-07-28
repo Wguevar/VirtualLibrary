@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Brands } from '../components/home/Brands';
 import { FeatureGrid } from '../components/home/FeatureGrid';
-import { BookGrid } from '../components/home/BookGrid';
+import { BookCarousel } from '../components/home/BookCarousel';
 import { fetchBooks } from '../services/bookService';
 import { PreparedBook } from '../interfaces';
 
@@ -59,7 +59,7 @@ export const HomePage = () => {
 					</button>
 				</div>
 			) : (
-				<BookGrid
+				<BookCarousel
 					title="Libros disponibles"
 					books={books}
 					noBooksMessage="No hay libros disponibles en este momento"

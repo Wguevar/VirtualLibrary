@@ -10,6 +10,7 @@ import { Pagination } from '../components/shared/Pagination';
 import { useAuth } from '../hooks/useAuth';
 import { fetchBooks } from '../services/bookService';
 import { PDFViewer } from '../components/products/PDFViewer';
+import { PhysicalBookModal } from '../components/products/PhysicalBookModal';
 
 import { registerBookReservation } from '../services/bookService';
 import { supabase } from '../supabase/client';
@@ -26,6 +27,7 @@ export const BookPages = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedBook, setSelectedBook] = useState<PreparedBook | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPhysicalBookModalOpen, setIsPhysicalBookModalOpen] = useState(false);
   const [selectedSpecialities, setSelectedSpecialities] = useState<string[]>([]);
   // Controlar si la selección de especialidad fue hecha por el usuario
   const [userChangedSpeciality, setUserChangedSpeciality] = useState(false);
@@ -104,7 +106,7 @@ export const BookPages = () => {
 
   // Lista fija de especialidades para los filtros
   const specialitiesForFilterBase = [
-    'Ingeniería De Sistemas',
+    'Ingeniería en Sistemas',
     'Ingeniería Civil',
     'Ingeniería en Mantenimiento Mecánico',
     'Ingeniería Electrónica',
@@ -196,6 +198,11 @@ export const BookPages = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setSelectedBook(null);
+  };
+
+  const handleClosePhysicalBookModal = () => {
+    setIsPhysicalBookModalOpen(false);
     setSelectedBook(null);
   };
 
@@ -316,17 +323,24 @@ export const BookPages = () => {
                         type={book.type}
                         fragment={book.fragment}
                         fileUrl={book.fileUrl}
-                                              cantidadDisponible={book.cantidadDisponible}
-                      hasActiveOrder={userActiveOrders.has(book.id)}
-                      isAuthenticated={isAuthenticated}
-                      onViewDetails={() => {
-                        if (!isAuthenticated) {
-                          return; // No abrir modal si no está autenticado
-                        }
-                        setSelectedBook(book);
-                        setIsModalOpen(true);
-                      }}
-                      onReserve={() => handleReserve(book)}
+                        cantidadDisponible={book.cantidadDisponible}
+                        hasActiveOrder={userActiveOrders.has(book.id)}
+                        isAuthenticated={isAuthenticated}
+                        onViewDetails={() => {
+                          if (!isAuthenticated) {
+                            return; // No abrir modal si no está autenticado
+                          }
+                          setSelectedBook(book);
+                          setIsModalOpen(true);
+                        }}
+                        onShowDetails={() => {
+                          if (!isAuthenticated) {
+                            return; // No abrir modal si no está autenticado
+                          }
+                          setSelectedBook(book);
+                          setIsPhysicalBookModalOpen(true);
+                        }}
+                        onReserve={() => handleReserve(book)}
                       />
                     </motion.div>
                   ))}
@@ -424,6 +438,22 @@ export const BookPages = () => {
         }}
         onConfirm={handleConfirmReservation}
         bookTitle={selectedBookForReservation?.title || ''}
+      />
+
+      {/* Modal para libros físicos */}
+      <PhysicalBookModal
+        isOpen={isPhysicalBookModalOpen}
+        onClose={handleClosePhysicalBookModal}
+        book={selectedBook}
+        onReserve={() => {
+          if (selectedBook) {
+            handleReserve(selectedBook);
+            handleClosePhysicalBookModal();
+          }
+        }}
+        hasActiveOrder={selectedBook ? userActiveOrders.has(selectedBook.id) : false}
+        cantidadDisponible={selectedBook?.cantidadDisponible}
+        isAuthenticated={isAuthenticated}
       />
 
       {/* Botón de scroll to top */}
