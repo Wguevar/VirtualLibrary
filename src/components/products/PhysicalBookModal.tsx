@@ -69,15 +69,10 @@ export const PhysicalBookModal = ({
               </div>
 
               {/* Información del libro */}
-              <div className="flex-1 flex flex-col">
+              <div className="flex-1">
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">{book.title}</h2>
                 
                 <div className="space-y-3 mb-6">
-                  <div>
-                    <span className="font-semibold text-gray-700">Autor:</span>
-                    <span className="ml-2 text-gray-600">{book.authors}</span>
-                  </div>
-                  
                   <div>
                     <span className="font-semibold text-gray-700">Especialidad:</span>
                     <span className="ml-2 text-gray-600">{book.speciality}</span>

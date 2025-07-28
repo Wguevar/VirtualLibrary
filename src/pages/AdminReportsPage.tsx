@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../supabase/client';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -364,6 +364,17 @@ const AdminReportsPage = () => {
   const [msg, setMsg] = useState<string|null>(null);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
+  // Hook y ref para cerrar con ESC
+  const modalRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!selectedOrder) return;
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelectedOrder(null);
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [selectedOrder]);
+
   return (
     <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-7xl mx-auto px-2 sm:px-4 lg:px-0">
       {/* Resumen superior - Diseño responsivo con unidades relativas */}
@@ -619,8 +630,18 @@ const AdminReportsPage = () => {
 
       {/* Modal de detalles de orden */}
       {selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-          <div className="bg-white rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+          onClick={e => {
+            // Si el usuario hace clic en el fondo, cerrar el modal
+            if (e.target === e.currentTarget) setSelectedOrder(null);
+          }}
+        >
+          <div 
+            ref={modalRef}
+            className="bg-white rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()} // Evita que el clic dentro del modal cierre el modal
+          >
             <div className="p-4 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-bold text-gray-800">Detalles de Orden</h3>

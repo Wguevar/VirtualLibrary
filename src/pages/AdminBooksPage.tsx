@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '../supabase/client';
 import { Pagination } from '../components/shared/Pagination';
 import { AdminFilters } from '../components/shared/AdminFilters';
@@ -313,11 +313,13 @@ const AdminBooksPage = () => {
       setEditLoading(false);
       return;
     }
-    // Intentar primero con 'tipo'
+
+    // Actualizar libro en 'Libros'
     let { error } = await supabase
       .from('Libros')
       .update({ titulo, sinopsis, url_portada: nuevaUrlPortada || null, tipo, especialidad, fecha_publicacion })
       .eq('id_libro', editLibro.id_libro);
+    
     // Si da error por 'tipo', intenta con 'type'
     if (error && (error as any).message && (error as any).message.includes('tipo')) {
       ({ error } = await supabase
@@ -325,6 +327,7 @@ const AdminBooksPage = () => {
         .update({ titulo, sinopsis, url_portada: nuevaUrlPortada || null, type: tipo, especialidad, fecha_publicacion })
         .eq('id_libro', editLibro.id_libro));
     }
+    
     // Si da error por 'especialidad', omite ese campo
     if (error && (error as any).message && (error as any).message.includes('especialidad')) {
       ({ error } = await supabase
@@ -335,16 +338,122 @@ const AdminBooksPage = () => {
 
     if (error) {
       setEditError('Error al actualizar libro');
-    } else {
-      setEditLibro(null);
-      fetchLibros();
+      setEditLoading(false);
+      return;
     }
+
+    // Manejar libros físicos
+    if (tipoFisico && cantidadFisico) {
+      // Verificar si ya existe un registro en libros_fisicos
+      const { data: existingFisico } = await supabase
+        .from('libros_fisicos')
+        .select('id')
+        .eq('libro_id', editLibro.id_libro)
+        .single();
+
+      if (existingFisico) {
+        // Actualizar registro existente
+        await supabase
+          .from('libros_fisicos')
+          .update({ cantidad: parseInt(cantidadFisico, 10) })
+          .eq('libro_id', editLibro.id_libro);
+      } else {
+        // Insertar nuevo registro
+        await supabase
+          .from('libros_fisicos')
+          .insert([{ libro_id: editLibro.id_libro, cantidad: parseInt(cantidadFisico, 10) }]);
+      }
+    } else {
+      // Si no es físico, eliminar registro de libros_fisicos si existe
+      await supabase
+        .from('libros_fisicos')
+        .delete()
+        .eq('libro_id', editLibro.id_libro);
+    }
+
+    // Manejar tesis
+    if (tipoTesis && periodoTesis && tutorTesis && especialidad) {
+      // Verificar si ya existe un registro en tesis
+      const { data: existingTesis } = await supabase
+        .from('tesis')
+        .select('id')
+        .eq('libro_id', editLibro.id_libro)
+        .single();
+
+      if (existingTesis) {
+        // Actualizar registro existente
+        await supabase
+          .from('tesis')
+          .update({ 
+            periodo_academico: periodoTesis, 
+            tutor_id: Number(tutorTesis), 
+            escuela: especialidad 
+          })
+          .eq('libro_id', editLibro.id_libro);
+      } else {
+        // Insertar nuevo registro
+        await supabase
+          .from('tesis')
+          .insert([{ 
+            libro_id: editLibro.id_libro, 
+            periodo_academico: periodoTesis, 
+            tutor_id: Number(tutorTesis), 
+            escuela: especialidad 
+          }]);
+      }
+    } else {
+      // Si no es tesis, eliminar registro de tesis si existe
+      await supabase
+        .from('tesis')
+        .delete()
+        .eq('libro_id', editLibro.id_libro);
+    }
+
+    // Manejar proyecto de investigación
+    if (tipoProyecto && periodoTesis && tutorTesis && especialidad) {
+      // Verificar si ya existe un registro en proyecto_investigacion
+      const { data: existingProyecto } = await supabase
+        .from('proyecto_investigacion')
+        .select('id')
+        .eq('libro_id', editLibro.id_libro)
+        .single();
+
+      if (existingProyecto) {
+        // Actualizar registro existente
+        await supabase
+          .from('proyecto_investigacion')
+          .update({ 
+            periodo_academico: periodoTesis, 
+            tutor_id: Number(tutorTesis), 
+            escuela: especialidad 
+          })
+          .eq('libro_id', editLibro.id_libro);
+      } else {
+        // Insertar nuevo registro
+        await supabase
+          .from('proyecto_investigacion')
+          .insert([{ 
+            libro_id: editLibro.id_libro, 
+            periodo_academico: periodoTesis, 
+            tutor_id: Number(tutorTesis), 
+            escuela: especialidad 
+          }]);
+      }
+    } else {
+      // Si no es proyecto, eliminar registro de proyecto_investigacion si existe
+      await supabase
+        .from('proyecto_investigacion')
+        .delete()
+        .eq('libro_id', editLibro.id_libro);
+    }
+
     // Subir PDF si se seleccionó uno nuevo
     const pdfFile = formData.get('url_pdf') as File | null;
     let url_pdf = '';
     if (pdfFile && pdfFile.size > 0) {
       url_pdf = (await uploadPdfToSupabase(pdfFile)) || '';
     }
+    
     // Si se subió un nuevo PDF, actualizar o insertar en libros_virtuales
     if (url_pdf) {
       // Usar upsert para insertar o actualizar la relación en libros_virtuales
@@ -354,6 +463,9 @@ const AdminBooksPage = () => {
           { libro_id: editLibro.id_libro, direccion_del_libro: url_pdf }
         ], { onConflict: 'libro_id' });
     }
+
+    setEditLibro(null);
+    fetchLibros();
     setEditLoading(false);
   };
 
@@ -421,6 +533,17 @@ const AdminBooksPage = () => {
       setIsExtractingMetadata(false);
     }
   };
+
+  // Hook y ref para cerrar con ESC
+  const modalRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!editLibro) return;
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setEditLibro(null);
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [editLibro]);
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -830,8 +953,18 @@ const AdminBooksPage = () => {
         )}
         {/* Modal de edición */}
         {editLibro && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-3 sm:p-4">
-            <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 max-w-md sm:max-w-lg w-full text-center max-h-[90vh] overflow-y-auto">
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-3 sm:p-4"
+            onClick={e => {
+              // Si el usuario hace clic en el fondo, cerrar el modal
+              if (e.target === e.currentTarget) setEditLibro(null);
+            }}
+          >
+            <div
+              ref={modalRef}
+              className="bg-white rounded-lg shadow-lg p-4 sm:p-6 max-w-md sm:max-w-lg w-full text-center max-h-[90vh] overflow-y-auto"
+              onClick={e => e.stopPropagation()} // Evita que el clic dentro del modal cierre el modal
+            >
               <h3 className="text-lg sm:text-xl font-bold mb-4 text-gray-800">Editar libro</h3>
               <form onSubmit={handleEditLibro} className="flex flex-col gap-3 sm:gap-4 text-left" encType="multipart/form-data">
                 <label className="font-medium text-sm sm:text-base text-gray-700">Título:</label>
