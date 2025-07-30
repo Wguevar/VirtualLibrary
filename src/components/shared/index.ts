@@ -8,4 +8,5 @@ export { BackToHome } from './BackToHome';
 export { ScrollToTop } from './ScrollToTop';
 export { Pagination } from './Pagination';
 export { AdminFilters } from './AdminFilters';
-export { default as MorosoBlock } from './MorosoBlock'; 
+export { default as MorosoBlock } from './MorosoBlock';
+export { PasswordInput } from './PasswordInput'; 

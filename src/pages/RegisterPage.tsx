@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { validation } from '../utils/validation';
+import { PasswordInput } from '../components/shared/PasswordInput';
 
 const specialities = [
   'Ingeniería en Sistemas',
@@ -140,31 +141,27 @@ export const RegisterPage = () => {
         </select>
         {errors.escuela && <p className="text-red-500 text-sm">{errors.escuela}</p>}
 
-        <input
-          type="password"
-          placeholder="Contraseña"
+        <PasswordInput
           value={password}
-          onChange={e => {
-            setPassword(e.target.value);
-            handleInputChange('password', e.target.value);
+          onChange={(value) => {
+            setPassword(value);
+            handleInputChange('password', value);
           }}
-          className={`border p-2 rounded w-full ${errors.password ? 'border-red-500' : ''}`}
+          placeholder="Contraseña"
+          error={errors.password}
           required
         />
-        {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
 
-        <input
-          type="password"
-          placeholder="Confirmar contraseña"
+        <PasswordInput
           value={confirmPassword}
-          onChange={e => {
-            setConfirmPassword(e.target.value);
-            handleInputChange('confirmPassword', e.target.value);
+          onChange={(value) => {
+            setConfirmPassword(value);
+            handleInputChange('confirmPassword', value);
           }}
-          className={`border p-2 rounded w-full ${errors.confirmPassword ? 'border-red-500' : ''}`}
+          placeholder="Confirmar contraseña"
+          error={errors.confirmPassword}
           required
         />
-        {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
 
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
         

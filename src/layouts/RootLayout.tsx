@@ -5,6 +5,7 @@ import { Banner } from '../components/home/Banner';
 import { useAuth } from '../hooks/useAuth';
 import MorosoBlock from '../components/shared/MorosoBlock';
 import { ScrollToTop } from '../components/shared/ScrollToTop';
+import { ReservationProvider } from '../contexts/ReservationContext';
 
 export const RootLayout = () => {
 	const { pathname } = useLocation();
@@ -49,16 +50,18 @@ export const RootLayout = () => {
 	}
 
 	return (
-		<div className='h-screen flex flex-col font-montserrat'>
-			<Navbar />
+		<ReservationProvider>
+			<div className='h-screen flex flex-col font-montserrat'>
+				<Navbar />
 
-			{pathname === '/' && <Banner />}
+				{pathname === '/' && <Banner />}
 
-			<main className='flex-1 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto my-8'>
-				<Outlet />
-			</main>
-			<Footer />
-			<ScrollToTop />
-		</div>
+				<main className='flex-1 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto my-8'>
+					<Outlet />
+				</main>
+				<Footer />
+				<ScrollToTop />
+			</div>
+		</ReservationProvider>
 	);
 };

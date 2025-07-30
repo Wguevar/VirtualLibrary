@@ -1,4 +1,5 @@
 import { supabase } from '../supabase/client';
+import { getCurrentLocalISOString } from '../utils/dateUtils';
 
 export const fetchBooks = async () => {
   try {
@@ -150,7 +151,7 @@ export const registerBookReservation = async ({ libro_id, usuario_id }: { libro_
     }
 
     // 4. Crear la orden (el trigger automáticamente reducirá el stock y establecerá fechas límite)
-    const fechaReserva = new Date().toISOString();
+    const fechaReserva = getCurrentLocalISOString();
     const ordenObj = {
       libro_id,
       usuario_id,

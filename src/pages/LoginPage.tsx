@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { validation } from '../utils/validation';
+import { PasswordInput } from '../components/shared/PasswordInput';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -89,18 +90,16 @@ export const LoginPage = () => {
         />
         {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
 
-        <input
-          type="password"
-          placeholder="Contraseña"
+        <PasswordInput
           value={password}
-          onChange={e => {
-            setPassword(e.target.value);
+          onChange={(value) => {
+            setPassword(value);
             handleInputChange('password');
           }}
-          className={`border p-2 rounded w-full ${errors.password ? 'border-red-500' : ''}`}
+          placeholder="Contraseña"
+          error={errors.password}
           required
         />
-        {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
 
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
         

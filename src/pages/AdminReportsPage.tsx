@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 import { useOutletContext } from 'react-router-dom';
+import { getCurrentLocalISOString, formatDateTime, formatDate } from '../utils/dateUtils';
 
 
 
@@ -148,12 +149,12 @@ const AdminReportsPage = () => {
 
     // Si se cambia a 'Prestado', establecer fecha_entrega
     if (nuevoEstado === 'Prestado' && !orden?.fecha_entrega) {
-      updateData.fecha_entrega = new Date().toISOString();
+      updateData.fecha_entrega = getCurrentLocalISOString();
     }
 
     // Si se cambia a 'Completado', establecer fecha_devolucion
     if (nuevoEstado === 'Completado' && !orden?.fecha_devolucion) {
-      updateData.fecha_devolucion = new Date().toISOString();
+      updateData.fecha_devolucion = getCurrentLocalISOString();
     }
 
     const { error } = await supabase
@@ -162,6 +163,7 @@ const AdminReportsPage = () => {
       .eq('id', id);
 
     if (!error) {
+      // Actualizar tanto la lista de órdenes como el modal
       setOrdenes(prev => prev.map(o => o.id === id ? { ...o, ...updateData } : o));
       
       // Si se responde un pedido pendiente, disminuir contador
@@ -169,11 +171,10 @@ const AdminReportsPage = () => {
         handlePedidoRespondido();
       }
       
-      setMsg(`Estado actualizado a ${nuevoEstado}${updateData.fecha_devolucion ? ' - Fecha de devolución registrada' : ''}`);
-      setTimeout(() => setMsg(null), 3000);
+      // Mensaje de confirmación removido por solicitud del usuario
     } else {
-      setMsg('Error al actualizar estado');
-      setTimeout(() => setMsg(null), 2000);
+      // Mensaje de error removido por solicitud del usuario
+      console.error('Error al actualizar estado:', error);
     }
   };
 
@@ -540,9 +541,9 @@ const AdminReportsPage = () => {
                     </div>
                   </div>
                   
-                  {/* Fecha */}
+                  {/* Fecha de reserva */}
                   <div className="text-xs text-gray-500">
-                    {item.fecha_reserva ? item.fecha_reserva.substring(0, 10) : 'Sin fecha'}
+                    {formatDate(item.fecha_reserva)}
                   </div>
                   
                   {/* Indicador de atención */}
@@ -683,8 +684,44 @@ const AdminReportsPage = () => {
                     className="border rounded px-2 py-1 text-sm bg-white"
                     value={selectedOrder.estado}
                     onChange={e => {
-                      updateOrdenEstado(selectedOrder.id, e.target.value);
-                      setSelectedOrder({...selectedOrder, estado: e.target.value});
+                      const nuevoEstado = e.target.value;
+                      
+                      // Actualizar estado local inmediatamente con las nuevas fechas
+                      let updatedOrder = { ...selectedOrder, estado: nuevoEstado };
+                      
+                      // Si se cambia a 'Prestado' y no hay fecha de entrega, agregarla
+                      if (nuevoEstado === 'Prestado' && !selectedOrder.fecha_entrega) {
+                        updatedOrder.fecha_entrega = getCurrentLocalISOString();
+                      }
+                      
+                      // Si se cambia a 'Completado' y no hay fecha de devolución, agregarla
+                      if (nuevoEstado === 'Completado' && !selectedOrder.fecha_devolucion) {
+                        updatedOrder.fecha_devolucion = getCurrentLocalISOString();
+                      }
+                      
+                      setSelectedOrder(updatedOrder);
+                      updateOrdenEstado(selectedOrder.id, nuevoEstado);
+                      
+                      // Recargar los datos de la orden para obtener las fechas límite actualizadas
+                      setTimeout(async () => {
+                        const { data: ordenActualizada, error } = await supabase
+                          .from('ordenes')
+                          .select('id, libro_id, usuario_id, estado, fecha_reserva, fecha_entrega, fecha_devolucion, fecha_limite_busqueda, fecha_limite_devolucion, Libros(titulo), usuarios(correo, nombre)')
+                          .eq('id', selectedOrder.id)
+                          .single();
+                        
+                        if (!error && ordenActualizada) {
+                          setSelectedOrder(ordenActualizada);
+                        }
+                      }, 500); // Pequeño delay para asegurar que el trigger se ejecute
+                      
+                      // Mostrar confirmación visual temporal
+                      const selectElement = e.target as HTMLSelectElement;
+                      const originalValue = selectElement.value;
+                      selectElement.style.backgroundColor = '#d1fae5'; // Verde claro
+                      setTimeout(() => {
+                        selectElement.style.backgroundColor = '';
+                      }, 1000);
                     }}
                   >
                     {ESTADOS.map(estado => (
@@ -699,24 +736,43 @@ const AdminReportsPage = () => {
                 <h4 className="font-semibold text-gray-800 mb-2">Fechas</h4>
                 <div className="bg-gray-50 p-3 rounded space-y-2">
                   <div className="text-sm">
-                    <span className="font-medium">Reserva:</span> {selectedOrder.fecha_reserva ? selectedOrder.fecha_reserva.substring(0, 10) : 'Sin fecha'}
+                    <span className="font-medium">📅 Reserva:</span> {formatDateTime(selectedOrder.fecha_reserva)}
                   </div>
-                  {selectedOrder.fecha_entrega && (
+                  
+                  {selectedOrder.fecha_entrega ? (
                     <div className="text-sm text-blue-600">
-                      <span className="font-medium">📤 Entrega:</span> {selectedOrder.fecha_entrega.substring(0, 10)}
+                      <span className="font-medium">📤 Entrega:</span> {formatDateTime(selectedOrder.fecha_entrega)}
                     </div>
-                  )}
-                  {selectedOrder.fecha_devolucion && (
+                  ) : selectedOrder.estado === 'Prestado' ? (
+                    <div className="text-sm text-orange-600">
+                      <span className="font-medium">📤 Entrega:</span> ⚠️ Sin fecha de entrega
+                    </div>
+                  ) : null}
+                  
+                  {selectedOrder.fecha_devolucion ? (
                     <div className="text-sm text-green-600">
-                      <span className="font-medium">📥 Devolución:</span> {selectedOrder.fecha_devolucion.substring(0, 10)}
+                      <span className="font-medium">📥 Devolución:</span> {formatDateTime(selectedOrder.fecha_devolucion)}
+                    </div>
+                  ) : selectedOrder.estado === 'Completado' ? (
+                    <div className="text-sm text-orange-600">
+                      <span className="font-medium">📥 Devolución:</span> ⚠️ Sin fecha de devolución
+                    </div>
+                  ) : null}
+                  
+                  {/* Mostrar fechas límite si existen */}
+                  {selectedOrder.fecha_limite_busqueda && (
+                    <div className="text-sm text-gray-600">
+                      <span className="font-medium">⏰ Límite búsqueda:</span> {formatDateTime(selectedOrder.fecha_limite_busqueda)}
                     </div>
                   )}
-                  {!selectedOrder.fecha_entrega && selectedOrder.estado === 'Prestado' && (
-                    <div className="text-sm text-orange-600">⚠️ Sin fecha de entrega</div>
+                  
+                  {selectedOrder.fecha_limite_devolucion && (
+                    <div className="text-sm text-blue-600">
+                      <span className="font-medium">⏰ Límite devolución:</span> {formatDateTime(selectedOrder.fecha_limite_devolucion)}
+                    </div>
                   )}
-                  {!selectedOrder.fecha_devolucion && selectedOrder.estado === 'Completado' && (
-                    <div className="text-sm text-orange-600">⚠️ Sin fecha de devolución</div>
-                  )}
+                  
+
                 </div>
               </div>
               

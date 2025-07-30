@@ -13,9 +13,12 @@ import { useCallback } from 'react';
 import { fetchBooks } from '../../services/bookService';
 import { AnimatePresence, motion } from 'framer-motion';
 import { supabase } from '../../supabase/client';
+import { useReservationContext } from '../../contexts/ReservationContext';
+import { formatDate } from '../../utils/dateUtils';
 
 export const Navbar = () => {
 	const { user, isAuthenticated, logout, isConfigured, loading } = useAuth();
+	const { refreshReservations } = useReservationContext();
 	const navigate = useNavigate();
 	const [showMenu, setShowMenu] = useState(false);
 	const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -60,7 +63,7 @@ export const Navbar = () => {
 
 			fetchPrestamos();
 		}
-	}, [user?.id]);
+	}, [user?.id, refreshReservations()]);
 
 	useEffect(() => {
 		if (!showMenu) return;
@@ -402,7 +405,7 @@ export const Navbar = () => {
 															{p.estado}
 														</span>
 														<span className='text-gray-500 text-xs'>
-															{new Date(p.fecha_reserva).toLocaleDateString()}
+															{formatDate(p.fecha_reserva)}
 														</span>
 													</div>
 												</li>

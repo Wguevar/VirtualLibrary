@@ -15,10 +15,12 @@ import { PhysicalBookModal } from '../components/products/PhysicalBookModal';
 import { registerBookReservation } from '../services/bookService';
 import { supabase } from '../supabase/client';
 import { ScrollToTop } from '../components/shared/ScrollToTop';
+import { useReservationContext } from '../contexts/ReservationContext';
 
 
 export const BookPages = () => {
   const { isAuthenticated, isConfigured, user } = useAuth();
+  const { triggerRefresh } = useReservationContext();
 
   const location = useLocation();
 
@@ -242,6 +244,9 @@ export const BookPages = () => {
       
       // Actualizar órdenes activas del usuario
       setUserActiveOrders(prev => new Set([...prev, selectedBookForReservation.id]));
+      
+      // Disparar actualización del historial de reservas en el Navbar
+      triggerRefresh();
       
     } catch (err: any) {
       // Mostrar mensaje de error específico
