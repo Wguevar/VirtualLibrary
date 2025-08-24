@@ -1,6 +1,10 @@
 # Biblioteca Virtual / Virtual Library
 
+![Biblioteca Virtual](public/Biblioteca.JPG)
+
 [English](#english) | [Español](#español)
+
+
 
 ---
 
