@@ -2,6 +2,9 @@
 
 ![Biblioteca Virtual](public/Biblioteca.JPG)
 
+> 📸 **More screenshots and images available in the `public/` folder**  
+> 📸 **Más capturas de pantalla e imágenes disponibles en la carpeta `public/`**
+
 [English](#english) | [Español](#español)
 
 
