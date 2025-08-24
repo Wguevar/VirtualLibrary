@@ -44,3 +44,6 @@ temp/
 
 # Supabase
 .supabase/
+
+# Development notes
+NOTAS_IA.txt

@@ -243,24 +243,7 @@ export const TesisPages = () => {
                 </div>
               )}
               
-              {/* Botones de acción - solo para usuarios autenticados */}
-              {isAuthenticated && selectedBook.fileUrl && showPdf && (
-                <div className="flex items-center justify-center gap-4 mt-4">
-                  <button
-                    onClick={() => window.open(selectedBook.fileUrl, '_blank')}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-                  >
-                    Abrir en nueva ventana
-                  </button>
-                  <a
-                    href={selectedBook.fileUrl}
-                    download
-                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
-                  >
-                    Descargar PDF
-                  </a>
-                </div>
-              )}
+              {/* Los proyectos de investigación no permiten descarga ni apertura en nueva ventana */}
             </motion.div>
           </motion.div>
         )}
